@@ -424,7 +424,7 @@
 
     .butterfly-equation {
       text-align: center;
-      font-size: .82em
+      font-size: .88em
     }
 
     .butterfly-equation span {
@@ -434,7 +434,7 @@
 
     .butterfly-steps {
       margin: .3em 0 0;
-      font-size: .72em
+      font-size: .76em
     }
 
     .butterfly-steps>div {
@@ -616,7 +616,7 @@
 
     @media(max-height:760px) {
       .reveal {
-        font-size: 22px
+        font-size: 24px
       }
 
       .reveal .slides section {
@@ -680,7 +680,7 @@
 
     .root-readout b {
       display: block;
-      font: 700 .53em 'Space Mono', monospace;
+      font: 700 .6em 'Space Mono', monospace;
       color: var(--teal);
       overflow-wrap: anywhere;
       margin-top: .18em
@@ -1000,7 +1000,7 @@
       background: linear-gradient(110deg, #e9eee8, #eee8dd);
       border-left-width: 5px;
       border-radius: 0 10px 10px 0;
-      font-size: .72em
+      font-size: .78em
     }
 
     .reveal table {
@@ -1169,7 +1169,7 @@
     }
 
     .root-layout .formula mjx-container {
-      font-size: 90%
+      font-size: 98%
     }
 
     .process-flow {
@@ -1289,7 +1289,7 @@
 
     .split-formulas .formula {
       margin: .25em 0;
-      font-size: .65em
+      font-size: .78em
     }
 
     .complex-controls {
@@ -1355,7 +1355,7 @@
 
     .comparison-table {
       margin: 0 !important;
-      font-size: .56em !important
+      font-size: .65em !important
     }
 
     .comparison-table td:first-child {
@@ -1661,7 +1661,7 @@
 
     @media(max-height:760px) {
       .reveal {
-        font-size: 22px
+        font-size: 24px
       }
 
       .concept-card {
@@ -1758,7 +1758,7 @@
 
     .reveal .katex,
     .reveal mjx-container {
-      font-size: 1.02em;
+      font-size: 1.04em;
       letter-spacing: 0
     }
 
@@ -2166,7 +2166,7 @@
     }
 
     .ex-svg-warm4-sm {
-      max-height: 260px
+      max-height: 245px
     }
 
     .panel-compact {
@@ -2176,33 +2176,18 @@
 
     .stage-split {
       display: grid;
-      grid-template-columns: 1.04fr .96fr;
-      gap: .65em;
-      align-items: start;
-      margin-top: .25em
+      grid-template-columns: 1fr 1fr;
+      gap: .75em;
+      align-items: center;
+      margin-top: .3em
     }
 
     .stage-split .panel-compact {
       margin-top: 0
     }
 
-    .calc-grid-stage {
-      grid-template-columns: 1fr;
-      gap: .32em;
-      margin: 0
-    }
-
-    .calc-grid-stage .calc-card {
-      padding: .24em .52em
-    }
-
-    .calc-grid-stage .calc-card .l {
-      font-size: .5em;
-      line-height: 1.44
-    }
-
     .ex-svg-stage8 {
-      max-height: 415px
+      max-height: 440px
     }
 
     .ex-svg .dim-stage {
@@ -2225,11 +2210,11 @@
     }
 
     .ex-strip {
-      font-size: .62em;
+      font-size: .7em;
       background: #e9f2ee;
       border-left: 4px solid var(--teal);
       border-radius: 0 8px 8px 0;
-      padding: .4em .7em;
+      padding: .42em .72em;
       margin: .3em 0
     }
 
@@ -2246,14 +2231,24 @@
 
     .calc-grid-1 {
       grid-template-columns: 1fr;
-      gap: .38em
+      gap: .42em
     }
 
     .calc-grid-1 .calc-card {
-      padding: .28em .6em
+      padding: .32em .66em
     }
 
     .calc-grid-1 .calc-card .l {
+      font-size: .7em;
+      line-height: 1.5
+    }
+
+    .grid2 .calc-grid-1 .calc-card {
+      padding: .26em .58em
+    }
+
+    .grid2 .calc-grid-1 .calc-card .l {
+      font-size: .63em;
       line-height: 1.48
     }
 
@@ -2261,27 +2256,27 @@
     .w-chips mjx-container,
     .pair-card mjx-container,
     .res-table mjx-container {
-      font-size: 98%
+      font-size: 102%
     }
 
     .calc-card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: .35em .65em;
+      padding: .36em .68em;
       box-shadow: 0 5px 14px #463a2610
     }
 
     .calc-card .cap {
-      font: 700 .46em 'Space Mono', monospace;
+      font: 700 .54em 'Space Mono', monospace;
       color: var(--accent);
       letter-spacing: .08em;
       margin-bottom: .2em
     }
 
     .calc-card .l {
-      font: .56em 'Space Mono', ui-monospace, monospace;
-      line-height: 1.75;
+      font: .66em 'Space Mono', ui-monospace, monospace;
+      line-height: 1.56;
       color: var(--ink);
       overflow-wrap: anywhere
     }
@@ -2304,23 +2299,38 @@
       color: #126b66
     }
 
+    .calc-grid.calc-grid-stage {
+      grid-template-columns: 1fr;
+      gap: .38em;
+      margin: 0
+    }
+
+    .calc-grid.calc-grid-stage .calc-card {
+      padding: .28em .58em
+    }
+
+    .calc-grid.calc-grid-stage .calc-card .l {
+      font-size: .58em;
+      line-height: 1.46
+    }
+
     .w-chips {
       display: flex;
       gap: .5em;
       flex-wrap: wrap;
-      margin: .3em 0
+      margin: .35em 0
     }
 
     .w-chip {
-      font: .56em 'Space Mono', monospace;
+      font: .66em 'Space Mono', monospace;
       background: #ebe5da;
       border-left: 4px solid var(--accent);
-      padding: .3em .6em;
+      padding: .34em .68em;
       border-radius: 0 8px 8px 0
     }
 
     .mini-h {
-      font: 700 .5em 'Space Mono', monospace;
+      font: 700 .56em 'Space Mono', monospace;
       letter-spacing: .1em;
       color: var(--teal);
       margin: .2em 0
@@ -2337,21 +2347,21 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: .3em .55em
+      padding: .34em .6em
     }
 
     .pair-card .l {
-      font: .54em 'Space Mono', monospace;
-      line-height: 1.7
+      font: .62em 'Space Mono', monospace;
+      line-height: 1.62
     }
 
     .pair-card .tag {
-      font: 700 .44em 'Space Mono', monospace;
+      font: 700 .52em 'Space Mono', monospace;
       color: var(--accent)
     }
 
     .res-table {
-      font-size: .5em !important
+      font-size: .58em !important
     }
 
     .res-table td.re {
@@ -2399,7 +2409,7 @@
     }
 
     .stage-formula {
-      font: .78em 'Space Mono', monospace;
+      font: .88em 'Space Mono', monospace;
       margin: .25em 0
     }
 
@@ -3505,38 +3515,36 @@
       <section class="wide-slide">
         <div class="eyebrow">07 / Resolución · Cálculo</div>
         <h2>2.ª etapa: mariposas de 4 puntos</h2>
-        <div class="fragment " data-fragment-index="1">
-          <div class="ex-strip">\(W_8^0=1\) · \(W_8^2=\left(e^{-j\frac{2\pi}{8}}\right)^2=e^{-j\frac{\pi}{2}}=-j\)</div>
-        </div>
+        <div class="ex-strip">\(W_8^0=1\) · \(W_8^2=\left(e^{-j\frac{2\pi}{8}}\right)^2=e^{-j\frac{\pi}{2}}=-j\)</div>
         <div class="stage-split">
           <div>
             <div class="calc-grid calc-grid-stage">
-              <div class="fragment " data-fragment-index="2">
+              <div class="fragment " data-fragment-index="1">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 1 · \(x'[0]\) y \(x'[2]\)</div>
                   <div class="l">\(x''[0] = x'[0] + W_8^0\,x'[2] = 3 + (-3) =\) <u>\(0\)</u><br>\(x''[2] = x'[0] - W_8^0\,x'[2] = 3 - (-3) =\) <u>\(6\)</u></div>
                 </div>
               </div>
-              <div class="fragment " data-fragment-index="3">
+              <div class="fragment " data-fragment-index="2">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 2 · \(x'[1]\) y \(x'[3]\)</div>
                   <div class="l">\(x''[1] = x'[1] + W_8^2\,x'[3] = -5 + (-j)(3) =\) <u>\(-5 - 3j\)</u><br>\(x''[3] = x'[1] - W_8^2\,x'[3] = -5 - (-j)(3) =\) <u>\(-5 + 3j\)</u></div>
                 </div>
               </div>
-              <div class="fragment " data-fragment-index="4">
+              <div class="fragment " data-fragment-index="3">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 3 · \(x'[4]\) y \(x'[6]\)</div>
                   <div class="l">\(x''[4] = x'[4] + W_8^0\,x'[6] = 2 + (-1) =\) <u>\(1\)</u><br>\(x''[6] = x'[4] - W_8^0\,x'[6] = 2 - (-1) =\) <u>\(3\)</u></div>
                 </div>
               </div>
-              <div class="fragment " data-fragment-index="5">
+              <div class="fragment " data-fragment-index="4">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 4 · \(x'[5]\) y \(x'[7]\)</div>
                   <div class="l">\(x''[5] = x'[5] + W_8^2\,x'[7] = 2 + (-j)(1) =\) <u>\(2 - j\)</u><br>\(x''[7] = x'[5] - W_8^2\,x'[7] = 2 - (-j)(1) =\) <u>\(2 + j\)</u></div>
                 </div>
               </div>
             </div>
-            <div class="fragment " data-fragment-index="6">
+            <div class="fragment " data-fragment-index="5">
               <div class="ex-strip"><b>Resultado:</b> \(x''=[\,0,\,-5-3j,\,6,\,-5+3j,\,1,\,2-j,\,3,\,2+j\,]\)</div>
             </div>
           </div>
@@ -3642,32 +3650,30 @@
       <section class="wide-slide">
         <div class="eyebrow">07 / Resolución · Cálculo</div>
         <h2>3.ª etapa: mariposa de 8 puntos</h2>
-        <div class="fragment " data-fragment-index="1">
-          <div class="ex-strip">
-            \(W_8^0=1\) · \(W_8^1=\frac{\sqrt2}{2}-j\frac{\sqrt2}{2}\) · \(W_8^2=-j\) · \(W_8^3=-\frac{\sqrt2}{2}-j\frac{\sqrt2}{2}\)</div>
-        </div>
+        <div class="ex-strip">
+          \(W_8^0=1\) · \(W_8^1=\frac{\sqrt2}{2}-j\frac{\sqrt2}{2}\) · \(W_8^2=-j\) · \(W_8^3=-\frac{\sqrt2}{2}-j\frac{\sqrt2}{2}\)</div>
         <div class="stage-split">
           <div>
             <div class="calc-grid calc-grid-stage">
-              <div class="fragment " data-fragment-index="2">
+              <div class="fragment " data-fragment-index="1">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 1 · \(x''[0]\) y \(x''[4]\)</div>
                   <div class="l">\(X[0] = x''[0] + W_8^0\,x''[4] = 0 + 1 =\) <u>\(1\)</u><br>\(X[4] = x''[0] - W_8^0\,x''[4] = 0 - 1 =\) <u>\(-1\)</u></div>
                 </div>
               </div>
-              <div class="fragment " data-fragment-index="3">
+              <div class="fragment " data-fragment-index="2">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 2 · \(x''[1]\) y \(x''[5]\)</div>
                   <div class="l">\(X[1] = x''[1] + W_8^1\,x''[5] = -5 - 3j + \frac{\sqrt{2}}{2}(1-j)(2 - j)\)<br>\(\phantom{X[1]} = -5 - 3j + (0.707 - 2.121j) =\) <u>\(-4.293 - 5.121j\)</u><br>\(X[5] = x''[1] - W_8^1\,x''[5] = -5 - 3j - (0.707 - 2.121j) =\) <u>\(-5.707 - 0.879j\)</u></div>
                 </div>
               </div>
-              <div class="fragment " data-fragment-index="4">
+              <div class="fragment " data-fragment-index="3">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 3 · \(x''[2]\) y \(x''[6]\)</div>
                   <div class="l">\(X[2] = x''[2] + W_8^2\,x''[6] = 6 + (-j)(3) = 6 - 3j =\) <u>\(6 - 3j\)</u><br>\(X[6] = x''[2] - W_8^2\,x''[6] = 6 - (-3j) =\) <u>\(6 + 3j\)</u></div>
                 </div>
               </div>
-              <div class="fragment " data-fragment-index="5">
+              <div class="fragment " data-fragment-index="4">
                 <div class="calc-card">
                   <div class="cap">MARIPOSA 4 · \(x''[3]\) y \(x''[7]\)</div>
                   <div class="l">\(X[3] = x''[3] + W_8^3\,x''[7] = -5 + 3j + \left(-\frac{\sqrt{2}}{2}\right)(1+j)(2 + j)\)<br>\(\phantom{X[3]} = -5 + 3j + (-0.707 - 2.121j) =\) <u>\(-5.707 + 0.879j\)</u><br>\(X[7] = x''[3] - W_8^3\,x''[7] = -5 + 3j - (-0.707 - 2.121j) =\) <u>\(-4.293 + 5.121j\)</u></div>
@@ -3890,8 +3896,8 @@
           </div>
         </div>
         <div class="fragment " data-fragment-index="3">
-          <div class="ex-strip"><b>Solo 5 términos por suma:</b> \(x[2]=x[3]=x[5]=0\), así que cada \(X[k]\) usa
-            \(n=0,1,4,6,7\) con valores \(-1,\,2,\,4,\,-3,\,-1\).</div>
+          <div class="ex-strip"><b>Solo 5 términos por suma</b> (\(x[2]=x[3]=x[5]=0\) y \(W_8^0=1\)):
+            $$X[k]=-1+2W_8^k+4W_8^{4k}-3W_8^{6k}-W_8^{7k}$$</div>
         </div>
       </section>
       <section class="wide-slide">

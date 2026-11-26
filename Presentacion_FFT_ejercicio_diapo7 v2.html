@@ -1,0 +1,3985 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FFT | Transformada rápida de Fourier</title>
+  <link rel="stylesheet" href="reveal.js-master/reveal.js-master/dist/reset.css">
+  <link rel="stylesheet" href="reveal.js-master/reveal.js-master/dist/reveal.css">
+  <link rel="stylesheet" href="reveal.js-master/reveal.js-master/dist/theme/white.css">
+  <style>
+    :root {
+      --paper: #f4f0e8;
+      --card: #fffdf8;
+      --ink: #202a35;
+      --muted: #65717a;
+      --accent: #d45a36;
+      --teal: #167c78;
+      --line: #d8d1c5;
+      --soft: #e8e1d5;
+      --font-sans: 'DM Sans', 'Source Sans Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-mono: 'Space Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+      --r-background-color: var(--paper);
+      --r-main-font: var(--font-sans);
+      --r-heading-font: var(--font-sans);
+      --r-code-font: var(--font-mono);
+      --r-main-color: var(--ink);
+      --r-heading-color: var(--ink);
+      --r-link-color: var(--teal);
+      --r-link-color-hover: var(--accent);
+      --r-selection-background-color: var(--teal)
+    }
+
+    html,
+    body {
+      background: var(--paper) !important
+    }
+
+    .reveal {
+      font-family: var(--font-sans);
+      color: var(--ink);
+      font-size: 27px
+    }
+
+    .reveal .slides section {
+      text-align: left;
+      padding: 12px 18px;
+      height: 100%;
+      box-sizing: border-box
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3 {
+      font-family: var(--font-sans);
+      color: var(--ink);
+      text-transform: none;
+      letter-spacing: -.035em;
+      font-weight: 700
+    }
+
+    .reveal h1 {
+      font-size: 2.25em;
+      line-height: 1.02
+    }
+
+    .reveal h2 {
+      font-size: 1.42em;
+      margin: 0 0 .5em
+    }
+
+    .reveal h3 {
+      font-size: .85em;
+      color: var(--muted);
+      font-weight: 500
+    }
+
+    .reveal p,
+    .reveal li {
+      line-height: 1.35
+    }
+
+    .reveal p {
+      margin: .42em 0
+    }
+
+    .reveal ul {
+      margin: .35em 0 .35em 1.15em
+    }
+
+    .reveal a {
+      color: var(--teal)
+    }
+
+    .eyebrow {
+      font: 700 .48em 'Space Mono', monospace;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: .65em
+    }
+
+    .rule {
+      height: 4px;
+      width: 70px;
+      background: var(--accent);
+      margin: .55em 0 1em
+    }
+
+    .deck-footer {
+      position: absolute;
+      bottom: 8px;
+      right: 16px;
+      color: #8a8c87;
+      font: .42em 'Space Mono', monospace
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: .65em .85em;
+      box-shadow: 0 7px 20px #463a2610
+    }
+
+    .formula {
+      font: .72em 'Space Mono', monospace;
+      background: #ebe5da;
+      border-left: 4px solid var(--teal);
+      padding: .65em .8em;
+      margin: .55em 0;
+      border-radius: 0 8px 8px 0;
+      overflow-wrap: anywhere
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .65em
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .55em
+    }
+
+    .kv {
+      font-size: .68em
+    }
+
+    .kv b {
+      color: var(--teal)
+    }
+
+    .muted {
+      color: var(--muted)
+    }
+
+    .small {
+      font-size: .65em
+    }
+
+    .tiny {
+      font-size: .5em;
+      color: var(--muted)
+    }
+
+    .pill {
+      display: inline-block;
+      padding: .2em .55em;
+      border-radius: 99px;
+      background: #e8eee9;
+      color: var(--teal);
+      font: .48em 'Space Mono', monospace
+    }
+
+    .reveal table {
+      font-size: .58em;
+      border-collapse: collapse;
+      width: 100%;
+      margin: .5em 0
+    }
+
+    .reveal td,
+    .reveal th {
+      border: 1px solid var(--line);
+      padding: .35em .5em;
+      background: var(--card);
+      color: var(--ink)
+    }
+
+    .reveal th {
+      background: #e9e3d8;
+      font-weight: 700
+    }
+
+    .reveal button,
+    .reveal select {
+      font: 600 .58em 'DM Sans', sans-serif;
+      background: var(--ink);
+      color: white;
+      border: 0;
+      border-radius: 7px;
+      padding: .42em .8em;
+      cursor: pointer
+    }
+
+    .reveal button.alt {
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line)
+    }
+
+    .reveal button:hover {
+      background: var(--teal)
+    }
+
+    .reveal button.selected {
+      background: var(--teal);
+      color: #fff
+    }
+
+    .reveal input[type=range] {
+      accent-color: var(--accent);
+      width: 125px;
+      vertical-align: middle
+    }
+
+    .controls {
+      display: flex;
+      gap: .55em;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: .68em;
+      margin: .4em 0
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      margin: .45em 0
+    }
+
+    .note {
+      font-size: .58em;
+      color: var(--muted);
+      min-height: 1.3em
+    }
+
+    .num {
+      font: 700 .58em 'Space Mono', monospace;
+      color: var(--accent)
+    }
+
+    .butterfly-values {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px
+    }
+
+    .butterfly-values span {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      text-align: center;
+      padding: .3em .1em;
+      font: .48em 'Space Mono', monospace;
+      overflow-wrap: anywhere
+    }
+
+    .slide-cover {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative
+    }
+
+    .cover-mark {
+      font: 700 .55em 'Space Mono', monospace;
+      color: var(--teal);
+      letter-spacing: .18em
+    }
+
+    .cover-title {
+      max-width: 780px;
+      margin: .55em 0
+    }
+
+    .cover-sub {
+      font-size: .85em;
+      color: var(--muted);
+      max-width: 680px
+    }
+
+    .cover-bottom {
+      display: flex;
+      gap: 1em;
+      align-items: center;
+      margin-top: 2em;
+      font-size: .55em;
+      color: var(--muted)
+    }
+
+    .cover-orbit {
+      position: absolute;
+      right: 4%;
+      top: 18%;
+      width: 290px;
+      height: 290px;
+      border: 1px solid #d6cfc2;
+      border-radius: 50%
+    }
+
+    .cover-orbit:before,
+    .cover-orbit:after {
+      content: "";
+      position: absolute;
+      border: 1px solid #d6cfc2;
+      border-radius: 50%;
+      inset: 35px
+    }
+
+    .cover-orbit:after {
+      inset: 82px;
+      border-color: var(--accent)
+    }
+
+    .cover-dot {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background: var(--teal);
+      border-radius: 50%;
+      left: 48%;
+      top: -7px;
+      box-shadow: 0 0 0 9px #167c7818
+    }
+
+    .cover-wave {
+      position: absolute;
+      right: 8%;
+      top: 37%;
+      font: .7em 'Space Mono', monospace;
+      color: var(--accent);
+      transform: rotate(18deg)
+    }
+
+    .stagebox {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      margin: .35em 0
+    }
+
+    .stagebox div {
+      background: #f1ece3;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      text-align: center;
+      padding: .34em .05em;
+      font: .48em 'Space Mono', monospace
+    }
+
+    .stagebox div strong {
+      display: block;
+      color: var(--teal);
+      font-size: 1.05em
+    }
+
+    /* Ajustes de composición y legibilidad para pantallas y proyectores */
+    .reveal .slides section.wide-slide {
+      padding: 8px 12px
+    }
+
+    .reveal .slides section {
+      box-sizing: border-box
+    }
+
+    .reveal canvas {
+      height: auto;
+      max-height: 260px;
+      object-fit: contain
+    }
+
+    .root-layout {
+      grid-template-columns: .92fr 1.08fr;
+      align-items: stretch;
+      gap: 1em
+    }
+
+    .root-property {
+      margin: .55em 0;
+      padding: .55em .7em
+    }
+
+    .root-visual {
+      padding: .65em .8em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center
+    }
+
+    .root-visual canvas {
+      max-height: 230px
+    }
+
+    .root-controls {
+      justify-content: center
+    }
+
+    .butterfly-main {
+      padding: .55em .85em
+    }
+
+    .butterfly-main canvas {
+      max-height: 255px
+    }
+
+    .butterfly-equation {
+      text-align: center;
+      font-size: .82em
+    }
+
+    .butterfly-equation span {
+      padding: 0 .8em;
+      color: var(--accent)
+    }
+
+    .butterfly-steps {
+      margin: .3em 0 0;
+      font-size: .72em
+    }
+
+    .butterfly-steps>div {
+      background: #f4f0e8;
+      border-radius: 8px;
+      padding: .45em .6em
+    }
+
+    .butterfly-steps b {
+      display: block;
+      font: 700 .9em 'Space Mono', monospace;
+      color: var(--teal);
+      margin: .25em 0
+    }
+
+    .example-intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1em
+    }
+
+    .example-intro p {
+      max-width: 43%;
+      margin: 0
+    }
+
+    .example-panel {
+      padding: .5em .75em
+    }
+
+    .example-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1em
+    }
+
+    .example-top h3 {
+      margin: .15em 0;
+      font-size: .9em;
+      color: var(--teal)
+    }
+
+    .example-top .note {
+      max-width: 60%;
+      text-align: right
+    }
+
+    .stage-table-wrap {
+      overflow-x: auto
+    }
+
+    .reveal table.stage-table {
+      font-size: .47em;
+      margin: .2em 0
+    }
+
+    .stage-table th,
+    .stage-table td {
+      text-align: center;
+      padding: .24em .35em;
+      white-space: nowrap
+    }
+
+    .stage-table td.active {
+      background: #e0eee9;
+      color: #126b66;
+      font-weight: 700
+    }
+
+    .example-panel canvas {
+      max-height: 215px;
+      margin: .25em 0
+    }
+
+    .example-bottom {
+      display: flex;
+      justify-content: space-between;
+      gap: 1em;
+      margin-top: .25em
+    }
+
+    .application-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .65em
+    }
+
+    .app-card {
+      position: relative;
+      min-height: 145px;
+      padding: .65em .75em .6em 1em
+    }
+
+    .app-card b {
+      display: block;
+      font-size: .78em;
+      margin: .25em 0
+    }
+
+    .app-card p {
+      margin: .2em 0
+    }
+
+    .app-index {
+      font: 700 .55em 'Space Mono', monospace;
+      color: var(--accent)
+    }
+
+    .application-takeaway {
+      margin-top: .7em;
+      text-align: center
+    }
+
+    .reveal .controls {
+      gap: .45em
+    }
+
+    .reveal .controls label {
+      white-space: nowrap
+    }
+
+    .reveal .controls .ctrl-group {
+      display: inline-flex;
+      align-items: center;
+      gap: .3em;
+      white-space: nowrap;
+      font-size: .9em
+    }
+
+    .reveal .controls .ctrl-group label {
+      font-size: 1em
+    }
+
+    .reveal output {
+      font: 700 .55em 'Space Mono', monospace;
+      color: var(--teal)
+    }
+
+    @media(max-width:900px) {
+      .reveal {
+        font-size: 22px
+      }
+
+      .root-layout {
+        grid-template-columns: 1fr
+      }
+
+      .root-visual canvas {
+        max-height: 210px
+      }
+
+      .example-intro {
+        display: block
+      }
+
+      .example-intro p {
+        max-width: none
+      }
+
+      .example-top {
+        display: block
+      }
+
+      .example-top .note {
+        max-width: none;
+        text-align: left
+      }
+
+      .application-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .app-card {
+        min-height: 125px
+      }
+    }
+
+    @media(max-height:760px) {
+      .reveal {
+        font-size: 22px
+      }
+
+      .reveal .slides section {
+        padding-top: 3px;
+        padding-bottom: 3px
+      }
+
+      .reveal h2 {
+        font-size: 1.28em;
+        margin-bottom: .25em
+      }
+
+      .reveal p {
+        margin: .25em 0
+      }
+
+      .rule {
+        margin: .3em 0 .55em
+      }
+
+      .panel {
+        padding: .45em .65em
+      }
+
+      .root-visual canvas,
+      .butterfly-main canvas,
+      .example-panel canvas {
+        max-height: 210px
+      }
+
+      .app-card {
+        min-height: 112px
+      }
+    }
+
+
+    /* Interactividad reforzada para las diapositivas de factores y ejemplo */
+    .root-modes {
+      justify-content: center;
+      margin: .1em 0
+    }
+
+    .root-readout {
+      display: grid;
+      grid-template-columns: .7fr 1.2fr 1fr;
+      gap: .35em;
+      margin: .2em 0
+    }
+
+    .root-readout>div {
+      background: #f4f0e8;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: .35em .45em;
+      min-width: 0
+    }
+
+    .root-readout span {
+      display: block
+    }
+
+    .root-readout b {
+      display: block;
+      font: 700 .53em 'Space Mono', monospace;
+      color: var(--teal);
+      overflow-wrap: anywhere;
+      margin-top: .18em
+    }
+
+    .root-visual canvas {
+      max-height: 210px
+    }
+
+    .operation-panel {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #f8f5ee;
+      padding: .35em .6em;
+      margin: .35em 0
+    }
+
+    .operation-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .65em
+    }
+
+    .operation-values {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: .35em
+    }
+
+    .operation-values>div {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: .35em;
+      text-align: center;
+      min-width: 0
+    }
+
+    .operation-values span {
+      display: block;
+      font: .45em 'Space Mono', monospace;
+      color: var(--muted)
+    }
+
+    .operation-values b {
+      display: block;
+      font: .55em 'Space Mono', monospace;
+      color: var(--teal);
+      overflow-wrap: anywhere;
+      margin-top: .2em
+    }
+
+    .operation-values .out {
+      border-color: #167c78;
+      background: #e9f2ee
+    }
+
+    .example-panel canvas {
+      max-height: 175px
+    }
+
+    .example-top .note {
+      line-height: 1.25
+    }
+
+    @media(max-width:900px) {
+      .root-readout {
+        grid-template-columns: 1fr
+      }
+
+      .operation-values {
+        grid-template-columns: repeat(3, 1fr)
+      }
+    }
+
+    @media(max-height:760px) {
+      .root-visual canvas {
+        max-height: 205px
+      }
+
+      .operation-panel {
+        padding: .25em .45em
+      }
+
+      .operation-values>div {
+        padding: .22em
+      }
+
+      .example-panel canvas {
+        max-height: 165px
+      }
+    }
+
+    @media(max-width:850px) {
+      .reveal {
+        font-size: 20px
+      }
+
+      .grid2,
+      .grid3 {
+        grid-template-columns: 1fr
+      }
+
+      .cover-orbit {
+        opacity: .25;
+        right: -12%;
+        top: 5%;
+        transform: scale(.7)
+      }
+
+      .butterfly-values {
+        grid-template-columns: repeat(4, 1fr)
+      }
+    }
+
+    .example-input-panel {
+      padding: .42em .65em;
+      margin: .35em 0
+    }
+
+    .example-input-head {
+      display: flex;
+      justify-content: space-between;
+      gap: .8em;
+      align-items: center;
+      font-size: .62em
+    }
+
+    .sample-controls {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: .35em;
+      margin: .35em 0
+    }
+
+    .sample-control {
+      background: #f4f0e8;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: .22em .3em;
+      text-align: center;
+      font: .46em 'Space Mono', monospace
+    }
+
+    .sample-control label {
+      display: block;
+      color: var(--muted);
+      margin-bottom: .1em
+    }
+
+    .sample-control input {
+      width: 100%;
+      accent-color: var(--accent);
+      margin: 0
+    }
+
+    .sample-control output {
+      display: block;
+      color: var(--teal);
+      font-weight: 700
+    }
+
+    .sample-plots {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .55em
+    }
+
+    .sample-plots canvas {
+      height: 78px;
+      margin: .15em 0
+    }
+
+    @media(max-height:760px) {
+      .sample-plots canvas {
+        height: 58px
+      }
+
+      .sample-control {
+        padding: .1em
+      }
+
+      .example-input-panel {
+        padding: .25em .45em
+      }
+    }
+
+    .butterfly-controls {
+      justify-content: center;
+      background: #f4f0e8;
+      border-radius: 8px;
+      padding: .35em .55em;
+      margin: .25em 0
+    }
+
+    .butterfly-controls label {
+      font-size: .62em
+    }
+
+
+    .table-wrap {
+      max-width: 100%;
+      max-height: 118px;
+      overflow: auto;
+      margin-top: .3rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--card)
+    }
+
+    #benchTable {
+      width: 100%;
+      font-size: .64em;
+      border-collapse: collapse;
+      margin: 0
+    }
+
+    #benchTable th,
+    #benchTable td {
+      padding: .34em .5em;
+      text-align: center;
+      white-space: nowrap
+    }
+
+    #benchTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #e9e4d9
+    }
+
+    #benchTable tbody tr:nth-child(even) {
+      background: rgba(22, 124, 120, .055)
+    }
+
+    .bench-controls {
+      align-items: end
+    }
+
+    .bench-plots canvas {
+      width: 100%;
+      height: auto;
+      max-height: 150px
+    }
+
+    .leak-plots canvas {
+      width: 100%;
+      height: auto;
+      max-height: 175px
+    }
+
+    /* Revisión visual integral: jerarquía, ritmo y legibilidad */
+    :root {
+      --paper: #f2eee6;
+      --card: #fffefa;
+      --ink: #1c2734;
+      --muted: #687680;
+      --accent: #d85d3b;
+      --teal: #137c78;
+      --line: #ddd5c8;
+      --soft: #e9e2d7
+    }
+
+    html,
+    body {
+      background: radial-gradient(ellipse at 84% 8%, #e9e4d9 0, transparent 34%), var(--paper) !important
+    }
+
+    .reveal {
+      font-size: 26px
+    }
+
+    .reveal .slides section {
+      padding: 14px 22px
+    }
+    .reveal .slides > section.stack {
+      padding: 0
+    }
+
+    .reveal h2 {
+      font-size: 1.5em;
+      line-height: 1.08;
+      margin-bottom: .38em
+    }
+
+    .reveal p {
+      line-height: 1.34
+    }
+
+    .eyebrow {
+      font-size: .46em;
+      letter-spacing: .17em;
+      margin-bottom: .52em
+    }
+
+    .rule {
+      width: 78px;
+      height: 4px;
+      margin: .48em 0 .82em;
+      border-radius: 4px
+    }
+
+    .panel {
+      border-radius: 15px;
+      border-color: #ded7cb;
+      box-shadow: 0 8px 24px rgba(48, 42, 31, .055);
+      transition: transform .18s ease, box-shadow .18s ease
+    }
+
+    .panel:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(48, 42, 31, .09)
+    }
+
+    .formula {
+      background: linear-gradient(110deg, #e9eee8, #eee8dd);
+      border-left-width: 5px;
+      border-radius: 0 10px 10px 0;
+      font-size: .72em
+    }
+
+    .reveal table {
+      border-radius: 10px;
+      overflow: hidden
+    }
+
+    .reveal td,
+    .reveal th {
+      padding: .46em .62em
+    }
+
+    .reveal th {
+      font-size: .94em;
+      letter-spacing: .02em
+    }
+
+    .reveal button {
+      transition: background .18s ease, transform .18s ease
+    }
+
+    .reveal button:active {
+      transform: translateY(1px)
+    }
+
+    .reveal button:focus-visible,
+    .reveal select:focus-visible,
+    .reveal input:focus-visible {
+      outline: 3px solid #d85d3b66;
+      outline-offset: 3px
+    }
+
+    .reveal input[type=range] {
+      width: 138px
+    }
+
+    .cover-title {
+      max-width: 790px
+    }
+
+    .cover-sub {
+      max-width: 720px;
+      line-height: 1.4
+    }
+
+    .cover-bottom {
+      gap: .75em;
+      flex-wrap: wrap
+    }
+
+    .concept-tag {
+      display: block;
+      font: 700 .44em 'Space Mono', monospace;
+      letter-spacing: .11em;
+      color: var(--accent);
+      margin-bottom: .35em
+    }
+
+    .dft-equation {
+      font-size: .88em;
+      padding: .9em 1em
+    }
+
+    .equation-limits {
+      display: block;
+      margin-top: .45em;
+      font-size: .65em;
+      color: var(--muted)
+    }
+
+    .dft-concepts {
+      grid-template-columns: repeat(4, 1fr);
+      gap: .5em;
+      margin: .65em 0
+    }
+
+    .concept-card {
+      padding: .65em .72em;
+      min-height: 130px
+    }
+
+    .concept-card>b {
+      display: block;
+      color: var(--teal);
+      font: 700 1em 'Space Mono', monospace;
+      margin: .25em 0
+    }
+
+    .concept-card p {
+      margin: .15em 0
+    }
+
+    .insight-strip {
+      display: flex;
+      gap: .85em;
+      align-items: center;
+      padding: .65em .85em;
+      margin: .65em 0;
+      background: #e7eee9;
+      border: 1px solid #d0ded5;
+      border-left: 5px solid var(--teal);
+      border-radius: 10px;
+      font-size: .66em
+    }
+
+    .insight-strip b {
+      white-space: nowrap;
+      color: #126b66
+    }
+
+    .insight-strip span {
+      color: var(--ink)
+    }
+
+    .complexity-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .7em;
+      margin: .65em 0
+    }
+
+    .complexity-card {
+      padding: .75em .85em
+    }
+
+    .complexity-card strong {
+      display: block;
+      font: 700 1.55em 'Space Mono', monospace;
+      margin: .3em 0
+    }
+
+    .complexity-card.direct strong {
+      color: var(--accent)
+    }
+
+    .complexity-card.fast strong {
+      color: var(--teal)
+    }
+
+    .growth-track {
+      height: 8px;
+      background: #eee9df;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-top: .45em
+    }
+
+    .growth-track i {
+      display: block;
+      height: 100%;
+      border-radius: 20px;
+      background: var(--accent)
+    }
+
+    .complexity-card.direct .growth-track i {
+      width: 94%
+    }
+
+    .complexity-card.fast .growth-track i {
+      background: var(--teal);
+      width: 40%
+    }
+
+    .formula mjx-container[display="true"] {
+      margin: .12em 0 !important
+    }
+
+    .root-layout .formula mjx-container {
+      font-size: 90%
+    }
+
+    .process-flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: .45em;
+      margin: .7em 0
+    }
+
+    .process-flow>div {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      column-gap: .45em;
+      align-items: center;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      padding: .42em .55em;
+      border-radius: 10px
+    }
+
+    .process-flow>div>b {
+      grid-row: span 2;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #e5eee9;
+      color: var(--teal);
+      font: 700 .6em 'Space Mono', monospace
+    }
+
+    .process-flow>div>span {
+      font-size: .66em;
+      font-weight: 700
+    }
+
+    .process-flow>div>small {
+      font-size: .46em;
+      color: var(--muted)
+    }
+
+    .process-flow>i {
+      color: var(--accent);
+      font-style: normal;
+      font-size: .8em
+    }
+
+    .split-sequence {
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: .65em .8em;
+      margin: .55em 0
+    }
+
+    .sequence-cells {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: .32em;
+      margin: .35em 0 .55em
+    }
+
+    .sequence-cells i {
+      display: block;
+      text-align: center;
+      padding: .38em .1em;
+      background: #f1eee7;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font: 600 .55em 'Space Mono', monospace;
+      font-style: normal
+    }
+
+    .sequence-cells i:nth-child(odd) {
+      background: #e4f0eb;
+      border-color: #bed8ce;
+      color: #126b66
+    }
+
+    .sequence-cells i:nth-child(even) {
+      background: #f9e9e2;
+      border-color: #ecd0c5;
+      color: #a7462b
+    }
+
+    .split-branches {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .5em
+    }
+
+    .branch {
+      border-radius: 8px;
+      padding: .4em .6em;
+      font-size: .62em
+    }
+
+    .branch b {
+      margin-right: .5em
+    }
+
+    .branch.even {
+      background: #e4f0eb;
+      color: #126b66
+    }
+
+    .branch.odd {
+      background: #f9e9e2;
+      color: #a7462b
+    }
+
+    .split-formulas .panel {
+      padding: .5em .65em
+    }
+
+    .split-formulas .formula {
+      margin: .25em 0;
+      font-size: .65em
+    }
+
+    .complex-controls {
+      display: flex;
+      align-items: center;
+      gap: .8em;
+      flex-wrap: wrap;
+      margin: .45em 0
+    }
+
+    .chart-panel {
+      padding: .55em .75em
+    }
+
+    .chart-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1em;
+      font-size: .62em
+    }
+
+    .chart-panel canvas {
+      margin: .2em 0;
+      max-height: 235px
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 1.2em;
+      justify-content: center;
+      font-size: .5em;
+      color: var(--muted)
+    }
+
+    .chart-legend span {
+      display: flex;
+      align-items: center;
+      gap: .35em
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%
+    }
+
+    .direct-dot {
+      background: var(--accent)
+    }
+
+    .fast-dot {
+      background: var(--teal)
+    }
+
+    .comparison-table-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      margin: .35em 0
+    }
+
+    .comparison-table {
+      margin: 0 !important;
+      font-size: .56em !important
+    }
+
+    .comparison-table td:first-child {
+      font-weight: 700;
+      color: var(--muted);
+      width: 23%
+    }
+
+    .direct-text {
+      color: var(--accent)
+    }
+
+    .fast-text {
+      color: var(--teal)
+    }
+
+    .comparison-bottom {
+      gap: .6em;
+      margin: .5em 0
+    }
+
+    .comparison-bottom .panel {
+      padding: .55em .7em
+    }
+
+    .comparison-bottom b {
+      display: block;
+      font-size: .72em
+    }
+
+    .comparison-bottom p {
+      margin: .16em 0
+    }
+
+    .bench-controls {
+      padding: .55em .7em;
+      background: #ebe7dd;
+      border: 1px solid var(--line);
+      border-radius: 12px
+    }
+
+    .bench-controls label {
+      font-size: .9em
+    }
+
+    .bench-plots .panel {
+      padding: .58em .7em
+    }
+
+    .bench-plots .tiny {
+      font-weight: 700;
+      letter-spacing: .07em
+    }
+
+    #benchTable {
+      font-size: .65em
+    }
+
+    #benchTable th {
+      background: #e9e4d9
+    }
+
+    #benchTable td {
+      font-variant-numeric: tabular-nums
+    }
+
+    .leak-controls {
+      background: #ebe7dd;
+      border: 1px solid var(--line);
+      padding: .55em .7em;
+      border-radius: 12px
+    }
+
+    .leak-controls label {
+      font-size: .92em
+    }
+
+    .leak-plots .panel {
+      padding: .6em .7em
+    }
+
+    .leak-plots .tiny {
+      font-weight: 700;
+      letter-spacing: .04em
+    }
+
+    .dtmf-layout {
+      grid-template-columns: .76fr 1.24fr;
+      align-items: stretch
+    }
+
+    .dtmf-panel,
+    .dtmf-analysis {
+      padding: .75em .85em
+    }
+
+    .dtmf-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .42em;
+      margin: .5em 0
+    }
+
+    .dtmf-keypad button {
+      font-size: .95em !important;
+      padding: .55em !important;
+      border-radius: 9px !important;
+      min-height: 47px
+    }
+
+    .dtmf-keypad button.selected {
+      background: var(--teal) !important;
+      color: #fff !important;
+      border-color: var(--teal) !important
+    }
+
+    .dtmf-frequency-key {
+      display: grid;
+      gap: .35em;
+      margin-top: .65em;
+      font-size: .53em;
+      color: var(--muted)
+    }
+
+    .dtmf-frequency-key span {
+      display: flex;
+      align-items: center;
+      gap: .4em
+    }
+
+    .dtmf-frequency-key i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block
+    }
+
+    .low-dot {
+      background: var(--teal)
+    }
+
+    .high-dot {
+      background: var(--accent)
+    }
+
+    .dtmf-analysis canvas {
+      max-height: 210px
+    }
+
+    .dtmf-result {
+      display: grid;
+      grid-template-columns: auto 54px 1fr;
+      align-items: center;
+      gap: .7em;
+      background: #e7eee9;
+      border: 1px solid #d0ded5;
+      border-radius: 10px;
+      padding: .45em .65em
+    }
+
+    .dtmf-result-label {
+      font: 700 .43em 'Space Mono', monospace;
+      letter-spacing: .08em;
+      color: var(--muted)
+    }
+
+    .dtmf-result strong {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 9px;
+      background: var(--teal);
+      color: white;
+      font-size: 1.2em
+    }
+
+    .dtmf-result .tiny {
+      line-height: 1.2
+    }
+
+    .dtmf-flow {
+      margin-top: .6em
+    }
+
+    .application-grid {
+      gap: .7em
+    }
+
+    .app-card {
+      min-height: 145px;
+      border-top: 3px solid #d9d2c6;
+      padding: .65em .8em
+    }
+
+    .app-card:nth-child(3n+1) {
+      border-top-color: var(--teal)
+    }
+
+    .app-card:nth-child(3n+2) {
+      border-top-color: var(--accent)
+    }
+
+    .app-card b {
+      font-size: .8em;
+      line-height: 1.15
+    }
+
+    .app-card p {
+      line-height: 1.3
+    }
+
+    .reveal .slides section.closing-slide.present {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start
+    }
+
+    .closing-points {
+      display: grid;
+      gap: .52em;
+      margin: .65em 0
+    }
+
+    .closing-point {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: .65em;
+      align-items: start;
+      background: #fffdf8;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: .58em .75em
+    }
+
+    .closing-point>span {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      background: #e5eee9;
+      border-radius: 10px;
+      color: var(--teal);
+      font: 700 .67em 'Space Mono', monospace
+    }
+
+    .closing-point b {
+      font-size: .72em
+    }
+
+    .closing-point p {
+      margin: .12em 0;
+      font-size: .61em;
+      color: var(--muted)
+    }
+
+    .closing-takeaway {
+      font-size: .68em;
+      font-weight: 700;
+      padding: .65em .85em;
+      border-radius: 10px;
+      background: #1c2734;
+      color: #fffdf8;
+      line-height: 1.35
+    }
+
+    .references {
+      display: grid;
+      gap: .12em;
+      margin-top: .5em;
+      font-size: .42em;
+      color: var(--muted)
+    }
+
+    .references b {
+      color: var(--ink);
+      font-size: 1.05em
+    }
+
+    @media(max-width:900px) {
+      .dft-concepts {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .dtmf-layout {
+        grid-template-columns: 1fr
+      }
+
+      .process-flow {
+        gap: .22em
+      }
+
+      .process-flow>div {
+        grid-template-columns: 25px 1fr;
+        padding: .3em
+      }
+
+      .process-flow>div>b {
+        width: 24px;
+        height: 24px
+      }
+    }
+
+    @media(max-height:760px) {
+      .reveal {
+        font-size: 22px
+      }
+
+      .concept-card {
+        min-height: 105px;
+        padding: .45em .55em
+      }
+
+      .insight-strip {
+        margin: .4em 0;
+        padding: .45em .65em
+      }
+
+      .process-flow {
+        margin: .45em 0
+      }
+
+      .chart-panel canvas {
+        max-height: 205px
+      }
+
+      .dtmf-analysis canvas {
+        max-height: 195px
+      }
+
+      .closing-points {
+        gap: .35em;
+        margin: .4em 0
+      }
+
+      .closing-point {
+        padding: .4em .6em
+      }
+
+      .closing-point>span {
+        width: 34px;
+        height: 34px
+      }
+
+      .closing-takeaway {
+        padding: .5em .7em
+      }
+    }
+
+
+    .canvas-drag-hint {
+      color: var(--muted);
+      font-size: .48em
+    }
+
+    canvas[style*="ns-resize"] {
+      cursor: ns-resize
+    }
+
+    canvas.is-dragging {
+      cursor: grabbing !important
+    }
+
+    .chart-hint {
+      margin: .18em 0 0 !important;
+      color: var(--muted);
+      font-size: .46em !important
+    }
+
+    #exampleInputPlot {
+      background: linear-gradient(180deg, #fffefa, #f7f4ed);
+      border: 1px solid var(--line);
+      border-radius: 8px
+    }
+
+    #benchTime,
+    #leakTimePlot {
+      background: linear-gradient(180deg, #fffefa, #f7f4ed);
+      border: 1px solid var(--line);
+      border-radius: 9px
+    }
+
+    /* ===== Mejoras v2 ===== */
+    .eq {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--teal);
+      border-radius: 0 12px 12px 0;
+      padding: .24em .8em;
+      margin: .36em 0;
+      font-size: .78em;
+      overflow-x: auto;
+      overflow-y: hidden
+    }
+
+    .eq .katex-display,
+    .eq mjx-container[display="true"] {
+      margin: .24em 0 !important
+    }
+
+    .reveal .katex,
+    .reveal mjx-container {
+      font-size: 1.02em
+    }
+
+    .eq-tight {
+      margin: .2em 0
+    }
+
+    .eq-compact {
+      margin: .3em 0
+    }
+
+    .sequence-cells-6 {
+      grid-template-columns: repeat(6, 1fr)
+    }
+
+    .bf-head {
+      grid-template-columns: 1fr auto;
+      align-items: center
+    }
+
+    .bf-head p,
+    .bf-head .eq {
+      margin: 0
+    }
+
+    .mono-note {
+      font-family: var(--font-mono)
+    }
+
+    .accent-text {
+      color: var(--accent)
+    }
+
+    .ex-grid {
+      grid-template-columns: 1.45fr .55fr;
+      gap: .6em
+    }
+
+    .cx-grid {
+      grid-template-columns: 1.5fr .5fr;
+      gap: .6em;
+      align-items: start
+    }
+
+    .cx-card {
+      padding: .5em .7em
+    }
+
+    .cx-card+.cx-card {
+      margin-top: .5em
+    }
+
+    .cx-range {
+      width: 100% !important
+    }
+
+    .cx-val {
+      display: block;
+      font-size: .8em
+    }
+
+    .cx-ratio {
+      display: block;
+      font-size: .95em
+    }
+
+    .stat3-3 {
+      grid-template-columns: repeat(3, 1fr)
+    }
+
+    .calc-final-panel {
+      margin-top: .4em
+    }
+
+    .grid4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .5em
+    }
+
+    .mini-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .5em;
+      margin: .5em 0
+    }
+
+    .mini-cards .panel {
+      padding: .5em .7em
+    }
+
+    .mini-cards .panel b {
+      font-size: .7em;
+      color: var(--teal)
+    }
+
+    .mini-cards .panel p {
+      margin: .15em 0;
+      font-size: .6em;
+      color: var(--muted)
+    }
+
+    .stage-bar {
+      display: flex;
+      gap: .5em;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: .2em 0
+    }
+
+    .stage-bar input[type=range] {
+      width: 150px
+    }
+
+    .flow-panel {
+      padding: .4em .6em
+    }
+
+    .flow-panel canvas {
+      max-height: none;
+      height: auto
+    }
+
+    .calc-wrap {
+      overflow-x: auto
+    }
+
+    .calc-table {
+      font-size: .55em !important;
+      width: 100%
+    }
+
+    .calc-table td,
+    .calc-table th {
+      font-family: var(--font-mono);
+      text-align: center;
+      padding: .28em .38em;
+      white-space: nowrap
+    }
+
+    .calc-table tr.sel td {
+      background: #e1efe9;
+      outline: 2px solid var(--teal);
+      outline-offset: -2px
+    }
+
+    .calc-table tr[data-op] {
+      cursor: pointer
+    }
+
+    .calc-table td.out {
+      color: var(--teal);
+      font-weight: 700
+    }
+
+    .calc-table th.lab,
+    .calc-table td.lab {
+      background: #e9e3d8;
+      font-weight: 700;
+      text-align: left
+    }
+
+    .tabs {
+      display: flex;
+      gap: .35em;
+      flex-wrap: wrap;
+      margin: .2em 0
+    }
+
+    .tabs button.selected {
+      background: var(--teal) !important;
+      color: #fff !important
+    }
+
+    .calc-note {
+      font: .62em var(--font-mono);
+      background: #f1ece3;
+      border-radius: 8px;
+      padding: .45em .7em;
+      margin: .35em 0;
+      overflow-wrap: anywhere
+    }
+
+    .stat3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .5em;
+      margin: .4em 0
+    }
+
+    .stat3>div {
+      background: #f4f0e8;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: .35em .6em
+    }
+
+    .stat3 b {
+      display: block;
+      font: 700 .82em var(--font-mono);
+      color: var(--teal)
+    }
+
+    .stat3 span {
+      font-size: .46em;
+      color: var(--muted)
+    }
+
+    .fig-panel {
+      padding: .5em .7em;
+      background: #fff
+    }
+
+    .fig-panel canvas {
+      background: #fff;
+      border: 0;
+      max-height: 290px;
+      margin: .1em auto
+    }
+
+    .bf-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: .6em
+    }
+
+    .mic-grid canvas {
+      max-height: 175px
+    }
+
+    .mic-wave {
+      height: 70px !important;
+      max-height: 70px !important
+    }
+
+    @media(max-height:760px) {
+      .fig-panel canvas {
+        max-height: 260px
+      }
+
+      .mic-grid canvas {
+        max-height: 160px
+      }
+
+      .eq {
+        font-size: .72em
+      }
+    }
+
+    /* Reveal oculta .controls (flechas de navegación); restauramos los controles de las diapositivas */
+    .reveal .slides .controls {
+      display: flex;
+      position: static;
+      width: auto;
+      height: auto;
+      right: auto;
+      bottom: auto;
+      z-index: auto;
+      pointer-events: auto;
+      user-select: auto
+    }
+
+    .reveal .slides .controls button {
+      position: static;
+      opacity: 1;
+      width: auto;
+      height: auto;
+      visibility: visible;
+      pointer-events: auto;
+      overflow: visible;
+      margin: 0;
+      color: #fff;
+      transform: none
+    }
+
+    .reveal .slides .controls button.alt {
+      color: var(--ink)
+    }
+
+    .reveal .slides .controls button.selected {
+      color: #fff
+    }
+
+    .reveal .slides .controls button:hover {
+      color: #fff
+    }
+
+    .reveal .slides .controls button:before,
+    .reveal .slides .controls button:after {
+      display: none !important
+    }
+
+    .butterfly-controls label {
+      font-size: 1em
+    }
+
+    .controls .pill {
+      font-size: .8em
+    }
+
+    .reveal .slides .controls {
+      color: var(--ink);
+      font-size: .8em
+    }
+
+    .reveal .slides .controls button {
+      background: var(--ink);
+      font-size: .72em;
+      padding: .45em .85em;
+      border-radius: 7px;
+      border: 0
+    }
+
+    .reveal .slides .controls button.alt {
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--ink)
+    }
+
+    .reveal .slides .controls button:hover {
+      background: var(--teal);
+      color: #fff
+    }
+
+    .reveal .slides .controls button.selected {
+      background: var(--teal)
+    }
+
+    .reveal .slides .controls button:disabled,
+    .reveal button:disabled {
+      opacity: .42;
+      cursor: not-allowed
+    }
+
+    .reveal .slides .controls label {
+      color: var(--ink);
+      font-size: .8em
+    }
+
+    .reveal .slides .controls output {
+      font: 700 .75em var(--font-mono);
+      color: var(--accent)
+    }
+
+    .butterfly-controls label {
+      font-size: .8em
+    }
+
+    .bf-grid canvas {
+      max-height: 220px
+    }
+
+    .fig-panel canvas {
+      max-height: 360px;
+      width: 100%;
+      height: auto
+    }
+
+    .mic-grid canvas,
+    .mic-wave {
+      width: 100%;
+      height: auto !important
+    }
+
+    .root-visual canvas {
+      max-height: 230px;
+      width: 100%;
+      height: auto
+    }
+
+    .dtmf-analysis canvas {
+      max-height: 205px
+    }
+
+    .root-property b {
+      font-size: .62em;
+      color: var(--teal)
+    }
+
+    .reveal .slide-number {
+      background: rgba(28, 39, 52, .8);
+      color: #fffefa;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      border-radius: 6px;
+      padding: 5px 9px;
+      bottom: 12px;
+      right: 12px
+    }
+
+
+    /* ===== Ejemplos FFT / DFT paso a paso ===== */
+    .ex-svg {
+      width: 100%;
+      max-height: 470px;
+      display: block
+    }
+
+    .ex-svg-warm {
+      max-height: 320px
+    }
+
+    .ex-svg-warm4 {
+      max-height: 390px
+    }
+
+    .ex-svg-warm4-sm {
+      max-height: 260px
+    }
+
+    .panel-compact {
+      margin-top: .45em;
+      padding: .45em .75em
+    }
+
+    .ex-svg-bars {
+      max-height: 190px
+    }
+
+    .ex-svg text {
+      font-family: 'Space Mono', ui-monospace, monospace
+    }
+
+    .ex-svg .halo {
+      paint-order: stroke;
+      stroke: #f4f0e8;
+      stroke-width: 4px;
+      stroke-linejoin: round
+    }
+
+    .ex-strip {
+      font-size: .62em;
+      background: #e9f2ee;
+      border-left: 4px solid var(--teal);
+      border-radius: 0 8px 8px 0;
+      padding: .4em .7em;
+      margin: .3em 0
+    }
+
+    .ex-strip b {
+      color: var(--teal)
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .5em .7em;
+      margin: .35em 0
+    }
+
+    .calc-grid-1 {
+      grid-template-columns: 1fr;
+      gap: .38em
+    }
+
+    .calc-grid-1 .calc-card {
+      padding: .28em .6em
+    }
+
+    .calc-grid-1 .calc-card .l {
+      line-height: 1.48
+    }
+
+    .calc-grid mjx-container,
+    .w-chips mjx-container,
+    .pair-card mjx-container,
+    .res-table mjx-container {
+      font-size: 98%
+    }
+
+    .calc-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: .35em .65em;
+      box-shadow: 0 5px 14px #463a2610
+    }
+
+    .calc-card .cap {
+      font: 700 .46em 'Space Mono', monospace;
+      color: var(--accent);
+      letter-spacing: .08em;
+      margin-bottom: .2em
+    }
+
+    .calc-card .l {
+      font: .56em 'Space Mono', ui-monospace, monospace;
+      line-height: 1.75;
+      color: var(--ink);
+      overflow-wrap: anywhere
+    }
+
+    .calc-card .l b {
+      color: var(--teal)
+    }
+
+    .calc-card .l i {
+      font-style: normal;
+      color: var(--accent)
+    }
+
+    .calc-card .l u {
+      text-decoration: none;
+      font-weight: 700;
+      background: #e0eee9;
+      padding: 0 .25em;
+      border-radius: 4px;
+      color: #126b66
+    }
+
+    .w-chips {
+      display: flex;
+      gap: .5em;
+      flex-wrap: wrap;
+      margin: .3em 0
+    }
+
+    .w-chip {
+      font: .56em 'Space Mono', monospace;
+      background: #ebe5da;
+      border-left: 4px solid var(--accent);
+      padding: .3em .6em;
+      border-radius: 0 8px 8px 0
+    }
+
+    .mini-h {
+      font: 700 .5em 'Space Mono', monospace;
+      letter-spacing: .1em;
+      color: var(--teal);
+      margin: .2em 0
+    }
+
+    .pair-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .45em;
+      margin: .3em 0
+    }
+
+    .pair-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: .3em .55em
+    }
+
+    .pair-card .l {
+      font: .54em 'Space Mono', monospace;
+      line-height: 1.7
+    }
+
+    .pair-card .tag {
+      font: 700 .44em 'Space Mono', monospace;
+      color: var(--accent)
+    }
+
+    .res-table {
+      font-size: .5em !important
+    }
+
+    .res-table td.re {
+      color: var(--teal);
+      font-weight: 700
+    }
+
+    .res-table td.rj {
+      color: var(--accent);
+      font-weight: 700
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: .7em;
+      align-items: start
+    }
+
+    .two-col-center {
+      align-items: center
+    }
+
+    .panel-narrow {
+      max-width: 760px
+    }
+
+    .mt-sm {
+      margin-top: .5em
+    }
+
+    .teal-text {
+      color: var(--teal);
+      font-weight: 700
+    }
+
+    .exercise-box {
+      font: 700 1.02em 'Space Mono', monospace;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--accent);
+      border-radius: 0 12px 12px 0;
+      padding: .5em .8em;
+      margin: .5em 0
+    }
+
+    .stage-formula {
+      font: .78em 'Space Mono', monospace;
+      margin: .25em 0
+    }
+  </style>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 1 PORTADA -->
+      <section>
+        <div class="slide-cover">
+          <div class="cover-mark">SEÑALES Y SISTEMAS / PROCESAMIENTO DIGITAL</div>
+          <div class="cover-orbit"><i class="cover-dot"></i></div>
+          <div class="cover-wave">$x[n] \to X[k]$</div>
+          <h1 class="cover-title">Transformada rápida de Fourier</h1>
+          <div class="rule"></div>
+          <p class="cover-sub">De la definición de la DFT al algoritmo de mariposas: cómo se calcula el espectro de una
+            señal con eficiencia y dónde se aplica.</p>
+          <div class="cover-bottom"><span>EXPOSICIÓN</span><span>·</span><span>INGENIERÍA EN
+              TELECOMUNICACIONES</span><span>·</span><span>SEÑALES Y SISTEMAS</span></div>
+        </div>
+      </section>
+
+      <!-- 2 TEORIA DFT (01 / Base matemática) -->
+      <section>
+        <div class="eyebrow">01 / Base matemática</div>
+        <h2>Transformada discreta de Fourier (DFT)</h2>
+        <div class="rule"></div>
+        <p>La <b>DFT</b> convierte un bloque de <b>\(N\) muestras</b> en \(N\) coeficientes complejos. Cada coeficiente
+          indica cuánto aporta una frecuencia discreta al bloque observado.</p>
+        <div class="formula dft-equation">$$X[k] = \sum_{n=0}^{N-1} x[n]\, e^{-j\frac{2\pi kn}{N}}, \qquad k = 0, 1,
+          \dots, N-1$$</div>
+        <div class="grid2 dft-concepts">
+          <div class="panel concept-card"><span class="concept-tag">01 · ENTRADA</span><b>\(x[n]\)</b>
+            <p class="small">Muestras de una señal tomadas cada \(1/F_s\) segundos.</p>
+          </div>
+          <div class="panel concept-card"><span class="concept-tag">02 · SALIDA</span><b>\(X[k]\)</b>
+            <p class="small">Coeficientes complejos que describen magnitud y fase.</p>
+          </div>
+          <div class="panel concept-card"><span class="concept-tag">03 · FRECUENCIA</span><b>\(f_k = \dfrac{k
+              F_s}{N}\)</b>
+            <p class="small">Frecuencia asociada al índice espectral \(k\).</p>
+          </div>
+          <div class="panel concept-card"><span class="concept-tag">04 · RESOLUCIÓN</span><b>\(\Delta f =
+              \dfrac{F_s}{N}\)</b>
+            <p class="small">Separación entre frecuencias discretas consecutivas.</p>
+          </div>
+        </div>
+        <div class="insight-strip"><b>Idea clave</b><span>La DFT define <i>qué</i> se calcula; la FFT define una forma
+            más rápida de calcularlo.</span></div>
+      </section>
+
+      <!-- 3 TEORIA FFT (02 / Idea central) -->
+      <section>
+        <div class="eyebrow">02 / Idea central</div>
+        <h2>¿Qué es la FFT?</h2>
+        <div class="rule"></div>
+        <p>La <b>FFT (Fast Fourier Transform)</b> no es otra transformada: es una familia de algoritmos que calcula la
+          DFT aprovechando simetrías y periodicidad para reutilizar resultados.</p>
+        <div class="complexity-compare">
+          <div class="panel complexity-card direct"><span class="pill">CÁLCULO DIRECTO
+              DFT</span><strong>\(O(N^2)\)</strong>
+            <p class="small">Evalúa los \(N\) coeficientes a partir de las \(N\) muestras.</p>
+            <div class="growth-track"><i></i></div>
+          </div>
+          <div class="panel complexity-card fast"><span class="pill">FFT RADIX-2</span><strong>\(O(N \log_2
+              N)\)</strong>
+            <p class="small">Organiza los cálculos en \(\log_2 N\) etapas de mariposas.</p>
+            <div class="growth-track"><i></i></div>
+          </div>
+        </div>
+        <div class="process-flow">
+          <div><b>1</b><span>Separar</span><small>índices pares e impares</small></div><i>→</i>
+          <div><b>2</b><span>Transformar</span><small>subsecuencias pequeñas</small></div><i>→</i>
+          <div><b>3</b><span>Combinar</span><small>factores \(W_N^k\)</small></div>
+        </div>
+        <div class="insight-strip"><b>Condición radix-2</b><span>La versión explicada en esta exposición trabaja con \(N
+            = 2^p\), es decir, una potencia de \(2\).</span></div>
+      </section>
+
+      <!-- 4 ALGORITMO: PAR-IMPAR (03 / Algoritmo FFT) -->
+      <section>
+        <div class="eyebrow">03 / Algoritmo FFT</div>
+        <h2>Descomposición par–impar</h2>
+        <div class="rule"></div>
+        <p>La primera división toma las muestras alternadas. Así, una DFT de \(N\) puntos se expresa mediante dos DFT de
+          \(N/2\) puntos.</p>
+        <div class="split-sequence">
+          <div class="sequence-input"><span class="concept-tag">SECUENCIA ORIGINAL</span>
+            <div class="sequence-cells">
+              <i>\(x[0]\)</i><i>\(x[1]\)</i><i>\(x[2]\)</i><i>\(x[3]\)</i><i>\(x[4]\)</i><i>\(x[5]\)</i><i>\(x[6]\)</i><i>\(x[7]\)</i>
+            </div>
+          </div>
+          <div class="split-branches">
+            <div class="branch even"><b>PARES</b><span>\(x[0],\, x[2],\, x[4],\, x[6]\)</span></div>
+            <div class="branch odd"><b>IMPARES</b><span>\(x[1],\, x[3],\, x[5],\, x[7]\)</span></div>
+          </div>
+        </div>
+        <div class="grid2 split-formulas">
+          <div class="panel"><span class="concept-tag">SALIDA SUPERIOR</span>
+            <div class="formula">$$X[k] = P[k] + W_N^k\, I[k]$$</div>
+            <p class="tiny">Se suman los resultados de ambas ramas.</p>
+          </div>
+          <div class="panel"><span class="concept-tag">SALIDA INFERIOR</span>
+            <div class="formula">$$X\!\left[k + \tfrac{N}{2}\right] = P[k] - W_N^k\, I[k]$$</div>
+            <p class="tiny">Se cambia el signo de la rama impar.</p>
+          </div>
+        </div>
+        <p class="small muted">Estas expresiones se aplican para \(k = 0, \dots, \frac{N}{2} - 1\). El proceso se repite
+          recursivamente hasta llegar a transformadas pequeñas.</p>
+      </section>
+
+      <!-- 5 FACTORES DE GIRO (04 / Factores de giro) -->
+      <section class="wide-slide">
+        <div class="eyebrow">04 / Factores de giro</div>
+        <h2>Los factores \(W_N\): raíces y simetría</h2>
+        <div class="rule"></div>
+        <div class="grid2 root-layout">
+          <div>
+            <div class="formula">$$W_N^k = e^{-j\,2\pi k/N} = \cos\!\left(\frac{2\pi k}{N}\right) -
+              j\operatorname{sen}\!\left(\frac{2\pi k}{N}\right)$$</div>
+            <p class="small">Para un \(N\) fijo, los factores \(W_N^k\) son las <b>\(N\) raíces de la unidad</b>. Se
+              ubican de manera equidistante sobre el círculo unitario del plano complejo.</p>
+            <div class="panel root-property"><b>Periodicidad</b>
+              <div class="formula">$$W_N^{k+N} = W_N^k$$</div>
+              <p class="tiny">Los valores se repiten cada \(N\) posiciones.</p>
+            </div>
+            <div class="panel root-property"><b>Simetría</b>
+              <div class="formula">$$W_N^{k + N/2} = -W_N^k$$</div>
+              <p class="tiny">El punto opuesto tiene el mismo módulo y signo contrario.</p>
+            </div>
+          </div>
+          <div class="panel root-visual">
+            <div class="tiny">CÍRCULO UNITARIO · SELECCIONA \(N\) Y \(k\)</div>
+            <canvas id="roots" width="700" height="360"></canvas>
+            <div class="controls root-controls">
+              <label>\(N\) <input id="wnN" type="range" min="4" max="64" step="4" value="8"></label><output
+                id="wnNv">8</output>
+              <label>\(k\) <input id="wnK" type="range" min="0" max="7" value="1"></label><output id="wnKv">1</output>
+            </div>
+            <div class="controls root-modes"><button type="button" id="rootSym" class="alt">Ver simetría</button><button
+                type="button" id="rootPer" class="alt">Ver periodicidad</button></div>
+            <div class="root-readout">
+              <div><span class="tiny">ÁNGULO</span><b id="rootAngle">−45°</b></div>
+              <div><span class="tiny">FACTOR SELECCIONADO</span><b id="rootValue">0.707 − 0.707j</b></div>
+              <div><span class="tiny">RELACIÓN</span><b id="rootRelation">\(W_8^5 = -W_8^1\)</b></div>
+            </div>
+            <p id="rootsInfo" class="note"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 MARIPOSA (05 / Operación elemental) -->
+      <section class="wide-slide">
+        <div class="eyebrow">05 / Operación elemental</div>
+        <h2>Cómo funciona una mariposa</h2>
+        <div class="rule"></div>
+        <p class="small">La mariposa es la operación básica de la FFT: combina dos valores complejos y produce dos
+          salidas. Ejemplo fijo con \(A = 2\), \(B = 3\) y factor de giro \(W = e^{-j90^\circ} = -j\):</p>
+        <div class="panel butterfly-main">
+          <div class="formula butterfly-equation">$$A' = A + W\cdot B, \qquad B' = A - W\cdot B \qquad \left(W =
+            e^{-j\theta}\right)$$</div>
+          <canvas id="butterfly" width="1000" height="390"></canvas>
+          <p class="note">Datos fijos: \(A = 2,\; B = 3,\; W = e^{-j90^\circ} = -j \quad|\quad W\cdot B = -3j
+            \quad|\quad A' = 2 - 3j \quad|\quad B' = 2 + 3j\)</p>
+          <div class="grid3 butterfly-steps">
+            <div><span class="num">01 · MULTIPLICAR</span><b>\(W \cdot B = 3\,e^{-j90^\circ} = -3j\)</b>
+              <p class="tiny">El factor de giro rota la fase de \(B\) en \(-90^\circ\) manteniendo \(|W| = 1\).</p>
+            </div>
+            <div><span class="num">02 · SUMAR</span><b>\(A' = 2 + (-3j) = 2 - 3j\)</b>
+              <p class="tiny">Se obtiene la salida superior sumando \(A\) y \(W\cdot B\).</p>
+            </div>
+            <div><span class="num">03 · RESTAR</span><b>\(B' = 2 - (-3j) = 2 + 3j\)</b>
+              <p class="tiny">Se obtiene la salida inferior restando \(W\cdot B\) a \(A\).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6 EJEMPLOS FFT / DFT (diapositivas verticales) -->
+      <section>
+      <!-- 6.1 DIAGRAMA DE MARIPOSAS (4 MUESTRAS) -->
+      <section class="wide-slide">
+        <div class="eyebrow">06 / Ejemplo · FFT y DFT con 4 muestras</div>
+        <h2>Ejercicio 1: \(x[n]=[1,\,2,\,3,\,4]\), \(N=4\)</h2>
+        <div class="ex-strip">\(N=4\Rightarrow\) etapas \(=\log_2 4=2\) · \(W_4^0=1,\;W_4^1=-j,\;W_4^2=-1,\;W_4^3=j\)
+        </div>
+        <div class="panel">
+          <div class="mini-h">FFT · INVERSIÓN DE BITS → 2 ETAPAS DE MARIPOSAS</div>
+          <svg class="ex-svg ex-svg-warm4" viewBox="0 0 600 285" xmlns="http://www.w3.org/2000/svg">
+            <g class="fragment" data-fragment-index="1">
+              <text x="6" y="24" font-size="12" fill="#65717a">BITS (leer ←)</text>
+              <text x="165" y="24" font-size="20" font-weight="700" text-anchor="middle" fill="#167c78">x</text>
+              <text x="8" y="72" font-size="16" font-weight="700" fill="#d45a36">00</text>
+              <line x1="34" y1="82" x2="12" y2="82" stroke="#d45a36" stroke-width="2" />
+              <path d="M5 82 L14 78 L14 86 Z" fill="#d45a36" />
+              <text x="54" y="72" font-size="16" fill="#202a35">x(0)</text>
+              <text x="140" y="72" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">1</text>
+              <circle cx="165" cy="66" r="5.5" fill="#167c78" />
+
+              <text x="8" y="132" font-size="16" font-weight="700" fill="#d45a36">01</text>
+              <line x1="34" y1="142" x2="12" y2="142" stroke="#d45a36" stroke-width="2" />
+              <path d="M5 142 L14 138 L14 146 Z" fill="#d45a36" />
+              <text x="54" y="132" font-size="16" fill="#202a35">x(2)</text>
+              <text x="140" y="132" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">3</text>
+              <circle cx="165" cy="126" r="5.5" fill="#167c78" />
+
+              <text x="8" y="192" font-size="16" font-weight="700" fill="#d45a36">10</text>
+              <line x1="34" y1="202" x2="12" y2="202" stroke="#d45a36" stroke-width="2" />
+              <path d="M5 202 L14 198 L14 206 Z" fill="#d45a36" />
+              <text x="54" y="192" font-size="16" fill="#202a35">x(1)</text>
+              <text x="140" y="192" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">2</text>
+              <circle cx="165" cy="186" r="5.5" fill="#167c78" />
+
+              <text x="8" y="252" font-size="16" font-weight="700" fill="#d45a36">11</text>
+              <line x1="34" y1="262" x2="12" y2="262" stroke="#d45a36" stroke-width="2" />
+              <path d="M5 262 L14 258 L14 266 Z" fill="#d45a36" />
+              <text x="54" y="252" font-size="16" fill="#202a35">x(3)</text>
+              <text x="140" y="252" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">4</text>
+              <circle cx="165" cy="246" r="5.5" fill="#167c78" />
+            </g>
+            <g class="fragment" data-fragment-index="2">
+              <text x="335" y="24" font-size="21" font-weight="700" text-anchor="middle" fill="#202a35">x′</text>
+              <line x1="170" y1="66" x2="330" y2="66" stroke="#167c78" stroke-width="2" />
+              <line x1="170" y1="126" x2="330" y2="126" stroke="#167c78" stroke-width="2" />
+              <line x1="170" y1="66" x2="330" y2="126" stroke="#167c78" stroke-width="2" />
+              <line x1="170" y1="126" x2="330" y2="66" stroke="#167c78" stroke-width="2" />
+              <line x1="170" y1="186" x2="330" y2="186" stroke="#167c78" stroke-width="2" />
+              <line x1="170" y1="246" x2="330" y2="246" stroke="#167c78" stroke-width="2" />
+              <line x1="170" y1="186" x2="330" y2="246" stroke="#167c78" stroke-width="2" />
+              <line x1="170" y1="246" x2="330" y2="186" stroke="#167c78" stroke-width="2" />
+
+              <circle cx="335" cy="66" r="5.5" fill="#167c78" />
+              <text x="326" y="85" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">W⁰</text>
+              <text x="345" y="59" font-size="14" font-weight="700" fill="#202a35" class="halo">4</text>
+              <text x="345" y="81" font-size="12" fill="#167c78" class="halo">x′(0)</text>
+
+              <circle cx="335" cy="126" r="5.5" fill="#167c78" />
+              <text x="326" y="145" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">−W⁰</text>
+              <text x="345" y="119" font-size="14" font-weight="700" fill="#202a35" class="halo">−2</text>
+              <text x="345" y="141" font-size="12" fill="#167c78" class="halo">x′(1)</text>
+
+              <circle cx="335" cy="186" r="5.5" fill="#167c78" />
+              <text x="326" y="205" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">W⁰</text>
+              <text x="345" y="179" font-size="14" font-weight="700" fill="#202a35" class="halo">6</text>
+              <text x="345" y="201" font-size="12" fill="#167c78" class="halo">x′(2)</text>
+
+              <circle cx="335" cy="246" r="5.5" fill="#167c78" />
+              <text x="326" y="265" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">−W⁰</text>
+              <text x="345" y="239" font-size="14" font-weight="700" fill="#202a35" class="halo">−2</text>
+              <text x="345" y="261" font-size="12" fill="#167c78" class="halo">x′(3)</text>
+            </g>
+            <g class="fragment" data-fragment-index="3">
+              <text x="505" y="24" font-size="20" font-weight="700" text-anchor="middle" fill="#2f6fa3">X</text>
+              <line x1="340" y1="66" x2="500" y2="66" stroke="#2f6fa3" stroke-width="2" />
+              <line x1="340" y1="186" x2="500" y2="186" stroke="#2f6fa3" stroke-width="2" />
+              <line x1="340" y1="66" x2="500" y2="186" stroke="#2f6fa3" stroke-width="2" />
+              <line x1="340" y1="186" x2="500" y2="66" stroke="#2f6fa3" stroke-width="2" />
+              <line x1="340" y1="126" x2="500" y2="126" stroke="#2f6fa3" stroke-width="2" />
+              <line x1="340" y1="246" x2="500" y2="246" stroke="#2f6fa3" stroke-width="2" />
+              <line x1="340" y1="126" x2="500" y2="246" stroke="#2f6fa3" stroke-width="2" />
+              <line x1="340" y1="246" x2="500" y2="126" stroke="#2f6fa3" stroke-width="2" />
+
+              <circle cx="505" cy="66" r="5.5" fill="#2f6fa3" />
+              <text x="496" y="85" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">W⁰</text>
+              <text x="515" y="59" font-size="14" font-weight="700" fill="#202a35" class="halo">10</text>
+              <text x="515" y="81" font-size="12" fill="#d45a36">X(0)</text>
+
+              <circle cx="505" cy="126" r="5.5" fill="#2f6fa3" />
+              <text x="496" y="145" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">W¹</text>
+              <text x="515" y="119" font-size="14" font-weight="700" fill="#202a35" class="halo">−2 + 2j</text>
+              <text x="515" y="141" font-size="12" fill="#d45a36">X(1)</text>
+
+              <circle cx="505" cy="186" r="5.5" fill="#2f6fa3" />
+              <text x="496" y="205" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">−W⁰</text>
+              <text x="515" y="179" font-size="14" font-weight="700" fill="#202a35" class="halo">−2</text>
+              <text x="515" y="201" font-size="12" fill="#d45a36">X(2)</text>
+
+              <circle cx="505" cy="246" r="5.5" fill="#2f6fa3" />
+              <text x="496" y="265" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">−W¹</text>
+              <text x="515" y="239" font-size="14" font-weight="700" fill="#202a35" class="halo">−2 − 2j</text>
+              <text x="515" y="261" font-size="12" fill="#d45a36">X(3)</text>
+            </g>
+          </svg>
+        </div>
+        <div class="fragment" data-fragment-index="4">
+          <div class="ex-strip"><b>Resultado FFT:</b> \(X=[10,\;-2+2j,\;-2,\;-2-2j]\) · 2 etapas y 4 mariposas.</div>
+        </div>
+      </section>
+
+      <!-- 6.2 CÁLCULOS ETAPA 1 Y ETAPA 2 (4 MUESTRAS) -->
+      <section class="wide-slide">
+        <div class="eyebrow">06 / Ejemplo · Cálculo FFT (N = 4)</div>
+        <h2>Cálculos de la 1.ª y 2.ª etapa</h2>
+        <div class="ex-strip">Entrada en inversión de bits: \([\,x[0],\,x[2],\,x[1],\,x[3]\,] = [\,1,\,3,\,2,\,4\,]\) ·
+          \(W_4^0=1,\;W_4^1=-j\)</div>
+        <div class="grid2 mt-sm">
+          <div>
+            <div class="mini-h">1.ª ETAPA · MARIPOSAS DE 2 PUNTOS → \(x'\)</div>
+            <div class="calc-grid calc-grid-1">
+              <div class="fragment" data-fragment-index="1">
+                <div class="calc-card">
+                  <div class="cap">MARIPOSA 1 · \(x[0]\) y \(x[2]\)</div>
+                  <div class="l">\(x'[0] = x[0] + W_4^0\,x[2] = 1 + (1)(3) =\) <u>\(4\)</u><br>\(x'[1] = x[0] - W_4^0\,x[2] = 1 - (1)(3) =\) <u>\(-2\)</u></div>
+                </div>
+              </div>
+              <div class="fragment" data-fragment-index="2">
+                <div class="calc-card">
+                  <div class="cap">MARIPOSA 2 · \(x[1]\) y \(x[3]\)</div>
+                  <div class="l">\(x'[2] = x[1] + W_4^0\,x[3] = 2 + (1)(4) =\) <u>\(6\)</u><br>\(x'[3] = x[1] - W_4^0\,x[3] = 2 - (1)(4) =\) <u>\(-2\)</u></div>
+                </div>
+              </div>
+            </div>
+            <div class="fragment" data-fragment-index="3">
+              <div class="ex-strip"><b>Vector intermedio:</b> \(x'=[\,4,\,-2,\,6,\,-2\,]\)</div>
+            </div>
+          </div>
+          <div>
+            <div class="mini-h">2.ª ETAPA · MARIPOSA DE 4 PUNTOS → \(X\)</div>
+            <div class="calc-grid calc-grid-1">
+              <div class="fragment" data-fragment-index="4">
+                <div class="calc-card">
+                  <div class="cap">MARIPOSA 1 · \(x'[0]\) y \(x'[2]\) (\(W_4^0=1\))</div>
+                  <div class="l">\(X[0] = x'[0] + W_4^0\,x'[2] = 4 + (1)(6) =\) <u>\(10\)</u><br>\(X[2] = x'[0] - W_4^0\,x'[2] = 4 - (1)(6) =\) <u>\(-2\)</u></div>
+                </div>
+              </div>
+              <div class="fragment" data-fragment-index="5">
+                <div class="calc-card">
+                  <div class="cap">MARIPOSA 2 · \(x'[1]\) y \(x'[3]\) (\(W_4^1=-j\))</div>
+                  <div class="l">\(X[1] = x'[1] + W_4^1\,x'[3] = -2 + (-j)(-2) =\) <u>\(-2 + 2j\)</u><br>\(X[3] = x'[1] - W_4^1\,x'[3] = -2 - (-j)(-2) =\) <u>\(-2 - 2j\)</u></div>
+                </div>
+              </div>
+            </div>
+            <div class="fragment" data-fragment-index="6">
+              <div class="ex-strip"><b>Resultado FFT:</b> \(X=[\,10,\,-2+2j,\,-2,\,-2-2j\,]\)</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-compact">
+          <div class="mini-h">GRÁFICA DE MARIPOSAS · \(N=4\) (2 ETAPAS)</div>
+          <svg class="ex-svg ex-svg-warm4-sm" viewBox="0 0 600 285" xmlns="http://www.w3.org/2000/svg">
+            <text x="6" y="24" font-size="12" fill="#65717a">BITS (leer ←)</text>
+            <text x="165" y="24" font-size="20" font-weight="700" text-anchor="middle" fill="#167c78">x</text>
+            <text x="8" y="72" font-size="16" font-weight="700" fill="#d45a36">00</text>
+            <line x1="34" y1="82" x2="12" y2="82" stroke="#d45a36" stroke-width="2" />
+            <path d="M5 82 L14 78 L14 86 Z" fill="#d45a36" />
+            <text x="54" y="72" font-size="16" fill="#202a35">x(0)</text>
+            <text x="140" y="72" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">1</text>
+            <circle cx="165" cy="66" r="5.5" fill="#167c78" />
+
+            <text x="8" y="132" font-size="16" font-weight="700" fill="#d45a36">01</text>
+            <line x1="34" y1="142" x2="12" y2="142" stroke="#d45a36" stroke-width="2" />
+            <path d="M5 142 L14 138 L14 146 Z" fill="#d45a36" />
+            <text x="54" y="132" font-size="16" fill="#202a35">x(2)</text>
+            <text x="140" y="132" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">3</text>
+            <circle cx="165" cy="126" r="5.5" fill="#167c78" />
+
+            <text x="8" y="192" font-size="16" font-weight="700" fill="#d45a36">10</text>
+            <line x1="34" y1="202" x2="12" y2="202" stroke="#d45a36" stroke-width="2" />
+            <path d="M5 202 L14 198 L14 206 Z" fill="#d45a36" />
+            <text x="54" y="192" font-size="16" fill="#202a35">x(1)</text>
+            <text x="140" y="192" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">2</text>
+            <circle cx="165" cy="186" r="5.5" fill="#167c78" />
+
+            <text x="8" y="252" font-size="16" font-weight="700" fill="#d45a36">11</text>
+            <line x1="34" y1="262" x2="12" y2="262" stroke="#d45a36" stroke-width="2" />
+            <path d="M5 262 L14 258 L14 266 Z" fill="#d45a36" />
+            <text x="54" y="252" font-size="16" fill="#202a35">x(3)</text>
+            <text x="140" y="252" font-size="16" font-weight="700" fill="#167c78" text-anchor="end">4</text>
+            <circle cx="165" cy="246" r="5.5" fill="#167c78" />
+
+            <text x="335" y="24" font-size="21" font-weight="700" text-anchor="middle" fill="#202a35">x′</text>
+            <line x1="170" y1="66" x2="330" y2="66" stroke="#167c78" stroke-width="2" />
+            <line x1="170" y1="126" x2="330" y2="126" stroke="#167c78" stroke-width="2" />
+            <line x1="170" y1="66" x2="330" y2="126" stroke="#167c78" stroke-width="2" />
+            <line x1="170" y1="126" x2="330" y2="66" stroke="#167c78" stroke-width="2" />
+            <line x1="170" y1="186" x2="330" y2="186" stroke="#167c78" stroke-width="2" />
+            <line x1="170" y1="246" x2="330" y2="246" stroke="#167c78" stroke-width="2" />
+            <line x1="170" y1="186" x2="330" y2="246" stroke="#167c78" stroke-width="2" />
+            <line x1="170" y1="246" x2="330" y2="186" stroke="#167c78" stroke-width="2" />
+
+            <circle cx="335" cy="66" r="5.5" fill="#167c78" />
+            <text x="326" y="85" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">W⁰</text>
+            <text x="345" y="59" font-size="14" font-weight="700" fill="#202a35" class="halo">4</text>
+            <text x="345" y="81" font-size="12" fill="#167c78" class="halo">x′(0)</text>
+
+            <circle cx="335" cy="126" r="5.5" fill="#167c78" />
+            <text x="326" y="145" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">−W⁰</text>
+            <text x="345" y="119" font-size="14" font-weight="700" fill="#202a35" class="halo">−2</text>
+            <text x="345" y="141" font-size="12" fill="#167c78" class="halo">x′(1)</text>
+
+            <circle cx="335" cy="186" r="5.5" fill="#167c78" />
+            <text x="326" y="205" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">W⁰</text>
+            <text x="345" y="179" font-size="14" font-weight="700" fill="#202a35" class="halo">6</text>
+            <text x="345" y="201" font-size="12" fill="#167c78" class="halo">x′(2)</text>
+
+            <circle cx="335" cy="246" r="5.5" fill="#167c78" />
+            <text x="326" y="265" font-size="13" font-weight="700" fill="#167c78" text-anchor="end" class="halo">−W⁰</text>
+            <text x="345" y="239" font-size="14" font-weight="700" fill="#202a35" class="halo">−2</text>
+            <text x="345" y="261" font-size="12" fill="#167c78" class="halo">x′(3)</text>
+
+            <text x="505" y="24" font-size="20" font-weight="700" text-anchor="middle" fill="#2f6fa3">X</text>
+            <line x1="340" y1="66" x2="500" y2="66" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="340" y1="186" x2="500" y2="186" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="340" y1="66" x2="500" y2="186" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="340" y1="186" x2="500" y2="66" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="340" y1="126" x2="500" y2="126" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="340" y1="246" x2="500" y2="246" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="340" y1="126" x2="500" y2="246" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="340" y1="246" x2="500" y2="126" stroke="#2f6fa3" stroke-width="2" />
+
+            <circle cx="505" cy="66" r="5.5" fill="#2f6fa3" />
+            <text x="496" y="85" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">W⁰</text>
+            <text x="515" y="59" font-size="14" font-weight="700" fill="#202a35" class="halo">10</text>
+            <text x="515" y="81" font-size="12" fill="#d45a36">X(0)</text>
+
+            <circle cx="505" cy="126" r="5.5" fill="#2f6fa3" />
+            <text x="496" y="145" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">W¹</text>
+            <text x="515" y="119" font-size="14" font-weight="700" fill="#202a35" class="halo">−2 + 2j</text>
+            <text x="515" y="141" font-size="12" fill="#d45a36">X(1)</text>
+
+            <circle cx="505" cy="186" r="5.5" fill="#2f6fa3" />
+            <text x="496" y="205" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">−W⁰</text>
+            <text x="515" y="179" font-size="14" font-weight="700" fill="#202a35" class="halo">−2</text>
+            <text x="515" y="201" font-size="12" fill="#d45a36">X(2)</text>
+
+            <circle cx="505" cy="246" r="5.5" fill="#2f6fa3" />
+            <text x="496" y="265" font-size="13" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">−W¹</text>
+            <text x="515" y="239" font-size="14" font-weight="700" fill="#202a35" class="halo">−2 − 2j</text>
+            <text x="515" y="261" font-size="12" fill="#d45a36">X(3)</text>
+          </svg>
+        </div>
+      </section>
+
+      <!-- 6.3 RESOLUCIÓN POR DFT (4 MUESTRAS) -->
+      <section class="wide-slide">
+        <div class="eyebrow">06 / Ejemplo · Resolución por DFT (N = 4)</div>
+        <h2>Cálculo directo con DFT: \(x[n]=[1,\,2,\,3,\,4]\)</h2>
+        <div class="ex-strip">$$X[k]=\sum_{n=0}^{3}x[n]\,W_4^{kn},\qquad W_4^0=1,\; W_4^1=-j,\; W_4^2=-1,\; W_4^3=j$$</div>
+        <div class="calc-grid calc-grid-1">
+          <div class="fragment" data-fragment-index="1">
+            <div class="calc-card">
+              <div class="cap">\(X[0]\)</div>
+              <div class="l">\(= 1\cdot W_4^0 + 2\cdot W_4^0 + 3\cdot W_4^0 + 4\cdot W_4^0\)<br>\(= 1 + 2 + 3 + 4 =\) <u>\(10\)</u></div>
+            </div>
+          </div>
+          <div class="fragment" data-fragment-index="2">
+            <div class="calc-card">
+              <div class="cap">\(X[1]\)</div>
+              <div class="l">\(= 1\cdot W_4^0 + 2\cdot W_4^1 + 3\cdot W_4^2 + 4\cdot W_4^3\)<br>\(= 1 + 2(-j) + 3(-1) + 4(j) =\) <u>\(-2 + 2j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment" data-fragment-index="3">
+            <div class="calc-card">
+              <div class="cap">\(X[2]\)</div>
+              <div class="l">\(= 1\cdot W_4^0 + 2\cdot W_4^2 + 3\cdot W_4^0 + 4\cdot W_4^2\)<br>\(= 1 + 2(-1) + 3 + 4(-1) =\) <u>\(-2\)</u></div>
+            </div>
+          </div>
+          <div class="fragment" data-fragment-index="4">
+            <div class="calc-card">
+              <div class="cap">\(X[3]\)</div>
+              <div class="l">\(= 1\cdot W_4^0 + 2\cdot W_4^3 + 3\cdot W_4^2 + 4\cdot W_4^1\)<br>\(= 1 + 2(j) + 3(-1) + 4(-j) =\) <u>\(-2 - 2j\)</u></div>
+            </div>
+          </div>
+        </div>
+        <div class="fragment" data-fragment-index="5">
+          <div class="ex-strip"><b>Mismo resultado que la FFT:</b> \(X=[10,\;-2+2j,\;-2,\;-2-2j]\). La DFT realiza
+            \(N^2=16\) multiplicaciones complejas frente a \(\frac{N}{2}\log_2 N = 4\) en la FFT.</div>
+        </div>
+      </section>
+
+      </section> <!-- Fin de la diapositiva 6: ejercicio 1 FFT de 4 muestras -->
+
+      <!-- 7 EJERCICIO FFT DE 8 MUESTRAS: nueva diapositiva independiente de la anterior -->
+      <section> <!-- Diapositiva 7: enunciado y resolución paso a paso -->
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Ejercicio · FFT de 8 muestras</div>
+        <h2>Ejercicio 2: encuentra la FFT de la secuencia</h2>
+        <div class="rule"></div>
+        <div class="exercise-box">\(x[n] = [\,-1,\, 2,\, 0,\, 0,\, 4,\, 0,\, -3,\, -1\,]\)</div>
+        <div class="fragment " data-fragment-index="1">
+          <div class="stage-formula">\(N = 8\)</div>
+        </div>
+        <div class="fragment " data-fragment-index="2">
+          <div class="panel panel-narrow">
+            <div class="mini-h">NÚMERO DE ETAPAS</div>$$\#\text{etapas}=\log_2 N=\log_2 8=3$$
+          </div>
+        </div>
+        <div class="fragment " data-fragment-index="3">
+          <div class="grid3 mt-sm">
+            <div class="panel"><span class="num">ETAPA 1</span>
+              <p class="small">Mariposas de 2 puntos<br>(4 mariposas)</p>
+            </div>
+            <div class="panel"><span class="num">ETAPA 2</span>
+              <p class="small">Mariposas de 4 puntos<br>(4 mariposas)</p>
+            </div>
+            <div class="panel"><span class="num">ETAPA 3</span>
+              <p class="small">Mariposas de 8 puntos<br>(4 mariposas)</p>
+            </div>
+          </div>
+        </div>
+        <div class="fragment " data-fragment-index="4">
+          <div class="ex-strip"><b>Total:</b> \(\frac{N}{2}\log_2 N = 4\cdot 3 = 12\) mariposas.</div>
+        </div>
+      </section>
+      <!-- 7.1 DIAGRAMA -->
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Diagrama de mariposa</div>
+        <h2>Inversión de bits y diagrama de 8 puntos</h2>
+        <svg class="ex-svg" viewBox="0 0 960 430" xmlns="http://www.w3.org/2000/svg">
+          <g class="fragment" data-fragment-index="1"><text x="6" y="68" font-size="19" font-weight="700"
+              fill="#d45a36">000</text>
+            <line x1="40" y1="78" x2="10" y2="78" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 78 L12 74 L12 82 Z" fill="#d45a36" /><text x="6" y="116" font-size="19" font-weight="700"
+              fill="#d45a36">001</text>
+            <line x1="40" y1="126" x2="10" y2="126" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 126 L12 122 L12 130 Z" fill="#d45a36" /><text x="6" y="164" font-size="19" font-weight="700"
+              fill="#d45a36">010</text>
+            <line x1="40" y1="174" x2="10" y2="174" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 174 L12 170 L12 178 Z" fill="#d45a36" /><text x="6" y="212" font-size="19" font-weight="700"
+              fill="#d45a36">011</text>
+            <line x1="40" y1="222" x2="10" y2="222" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 222 L12 218 L12 226 Z" fill="#d45a36" /><text x="6" y="260" font-size="19" font-weight="700"
+              fill="#d45a36">100</text>
+            <line x1="40" y1="270" x2="10" y2="270" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 270 L12 266 L12 274 Z" fill="#d45a36" /><text x="6" y="308" font-size="19" font-weight="700"
+              fill="#d45a36">101</text>
+            <line x1="40" y1="318" x2="10" y2="318" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 318 L12 314 L12 322 Z" fill="#d45a36" /><text x="6" y="356" font-size="19" font-weight="700"
+              fill="#d45a36">110</text>
+            <line x1="40" y1="366" x2="10" y2="366" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 366 L12 362 L12 370 Z" fill="#d45a36" /><text x="6" y="404" font-size="19" font-weight="700"
+              fill="#d45a36">111</text>
+            <line x1="40" y1="414" x2="10" y2="414" stroke="#d45a36" stroke-width="2" />
+            <path d="M3 414 L12 410 L12 418 Z" fill="#d45a36" /><text x="6" y="30" font-size="13" fill="#65717a">BITS
+              (leer ←)</text>
+          </g>
+          <g class="fragment" data-fragment-index="2"><text x="72" y="68" font-size="19" fill="#202a35">x(0)</text><text
+              x="190" y="68" font-size="19" font-weight="700" fill="#167c78" text-anchor="end">-1</text>
+            <circle cx="215" cy="62" r="6" fill="#167c78" /><text x="72" y="116" font-size="19"
+              fill="#202a35">x(4)</text><text x="190" y="116" font-size="19" font-weight="700" fill="#167c78"
+              text-anchor="end">4</text>
+            <circle cx="215" cy="110" r="6" fill="#167c78" /><text x="72" y="164" font-size="19"
+              fill="#202a35">x(2)</text><text x="190" y="164" font-size="19" font-weight="700" fill="#167c78"
+              text-anchor="end">0</text>
+            <circle cx="215" cy="158" r="6" fill="#167c78" /><text x="72" y="212" font-size="19"
+              fill="#202a35">x(6)</text><text x="190" y="212" font-size="19" font-weight="700" fill="#167c78"
+              text-anchor="end">-3</text>
+            <circle cx="215" cy="206" r="6" fill="#167c78" /><text x="72" y="260" font-size="19"
+              fill="#202a35">x(1)</text><text x="190" y="260" font-size="19" font-weight="700" fill="#167c78"
+              text-anchor="end">2</text>
+            <circle cx="215" cy="254" r="6" fill="#167c78" /><text x="72" y="308" font-size="19"
+              fill="#202a35">x(5)</text><text x="190" y="308" font-size="19" font-weight="700" fill="#167c78"
+              text-anchor="end">0</text>
+            <circle cx="215" cy="302" r="6" fill="#167c78" /><text x="72" y="356" font-size="19"
+              fill="#202a35">x(3)</text><text x="190" y="356" font-size="19" font-weight="700" fill="#167c78"
+              text-anchor="end">0</text>
+            <circle cx="215" cy="350" r="6" fill="#167c78" /><text x="72" y="404" font-size="19"
+              fill="#202a35">x(7)</text><text x="190" y="404" font-size="19" font-weight="700" fill="#167c78"
+              text-anchor="end">-1</text>
+            <circle cx="215" cy="398" r="6" fill="#167c78" />
+          </g>
+          <g class="fragment" data-fragment-index="3">
+            <circle cx="850" cy="62" r="6" fill="#202a35" /><text x="864" y="68" font-size="20" font-weight="700"
+              fill="#202a35">X(0)</text>
+            <circle cx="850" cy="110" r="6" fill="#202a35" /><text x="864" y="116" font-size="20" font-weight="700"
+              fill="#202a35">X(1)</text>
+            <circle cx="850" cy="158" r="6" fill="#202a35" /><text x="864" y="164" font-size="20" font-weight="700"
+              fill="#202a35">X(2)</text>
+            <circle cx="850" cy="206" r="6" fill="#202a35" /><text x="864" y="212" font-size="20" font-weight="700"
+              fill="#202a35">X(3)</text>
+            <circle cx="850" cy="254" r="6" fill="#202a35" /><text x="864" y="260" font-size="20" font-weight="700"
+              fill="#202a35">X(4)</text>
+            <circle cx="850" cy="302" r="6" fill="#202a35" /><text x="864" y="308" font-size="20" font-weight="700"
+              fill="#202a35">X(5)</text>
+            <circle cx="850" cy="350" r="6" fill="#202a35" /><text x="864" y="356" font-size="20" font-weight="700"
+              fill="#202a35">X(6)</text>
+            <circle cx="850" cy="398" r="6" fill="#202a35" /><text x="864" y="404" font-size="20" font-weight="700"
+              fill="#202a35">X(7)</text>
+          </g>
+          <g class="fragment" data-fragment-index="4">
+            <line x1="221" y1="62" x2="424" y2="62" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="110" x2="424" y2="110" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="62" x2="424" y2="110" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="110" x2="424" y2="62" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="158" x2="424" y2="158" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="206" x2="424" y2="206" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="158" x2="424" y2="206" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="206" x2="424" y2="158" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="254" x2="424" y2="254" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="302" x2="424" y2="302" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="254" x2="424" y2="302" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="302" x2="424" y2="254" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="350" x2="424" y2="350" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="398" x2="424" y2="398" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="350" x2="424" y2="398" stroke="#167c78" stroke-width="2" />
+            <line x1="221" y1="398" x2="424" y2="350" stroke="#167c78" stroke-width="2" />
+            <circle cx="430" cy="62" r="6" fill="#167c78" />
+            <circle cx="430" cy="110" r="6" fill="#167c78" />
+            <circle cx="430" cy="158" r="6" fill="#167c78" />
+            <circle cx="430" cy="206" r="6" fill="#167c78" />
+            <circle cx="430" cy="254" r="6" fill="#167c78" />
+            <circle cx="430" cy="302" r="6" fill="#167c78" />
+            <circle cx="430" cy="350" r="6" fill="#167c78" />
+            <circle cx="430" cy="398" r="6" fill="#167c78" />
+          </g>
+          <g class="fragment" data-fragment-index="5">
+            <line x1="436" y1="62" x2="634" y2="62" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="158" x2="634" y2="158" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="62" x2="634" y2="158" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="158" x2="634" y2="62" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="110" x2="634" y2="110" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="206" x2="634" y2="206" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="110" x2="634" y2="206" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="206" x2="634" y2="110" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="254" x2="634" y2="254" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="350" x2="634" y2="350" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="254" x2="634" y2="350" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="350" x2="634" y2="254" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="302" x2="634" y2="302" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="398" x2="634" y2="398" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="302" x2="634" y2="398" stroke="#2f6fa3" stroke-width="2" />
+            <line x1="436" y1="398" x2="634" y2="302" stroke="#2f6fa3" stroke-width="2" />
+            <circle cx="640" cy="62" r="6" fill="#2f6fa3" />
+            <circle cx="640" cy="110" r="6" fill="#2f6fa3" />
+            <circle cx="640" cy="158" r="6" fill="#2f6fa3" />
+            <circle cx="640" cy="206" r="6" fill="#2f6fa3" />
+            <circle cx="640" cy="254" r="6" fill="#2f6fa3" />
+            <circle cx="640" cy="302" r="6" fill="#2f6fa3" />
+            <circle cx="640" cy="350" r="6" fill="#2f6fa3" />
+            <circle cx="640" cy="398" r="6" fill="#2f6fa3" />
+          </g>
+          <g class="fragment" data-fragment-index="6">
+            <line x1="646" y1="62" x2="844" y2="62" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="254" x2="844" y2="254" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="62" x2="844" y2="254" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="254" x2="844" y2="62" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="110" x2="844" y2="110" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="302" x2="844" y2="302" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="110" x2="844" y2="302" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="302" x2="844" y2="110" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="158" x2="844" y2="158" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="350" x2="844" y2="350" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="158" x2="844" y2="350" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="350" x2="844" y2="158" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="206" x2="844" y2="206" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="398" x2="844" y2="398" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="206" x2="844" y2="398" stroke="#d45a36" stroke-width="2" />
+            <line x1="646" y1="398" x2="844" y2="206" stroke="#d45a36" stroke-width="2" />
+          </g>
+          <g class="fragment" data-fragment-index="7"><text x="416" y="26" font-size="22" font-weight="700"
+              fill="#202a35">x′</text><text x="626" y="26" font-size="22" font-weight="700"
+              fill="#202a35">x″</text><text x="439" y="53" font-size="15" fill="#202a35" class="halo">x′(0)</text><text
+              x="649" y="53" font-size="15" fill="#202a35" class="halo">x″(0)</text><text x="439" y="101" font-size="15"
+              fill="#202a35" class="halo">x′(1)</text><text x="649" y="101" font-size="15" fill="#202a35"
+              class="halo">x″(1)</text><text x="439" y="149" font-size="15" fill="#202a35"
+              class="halo">x′(2)</text><text x="649" y="149" font-size="15" fill="#202a35"
+              class="halo">x″(2)</text><text x="439" y="197" font-size="15" fill="#202a35"
+              class="halo">x′(3)</text><text x="649" y="197" font-size="15" fill="#202a35"
+              class="halo">x″(3)</text><text x="439" y="245" font-size="15" fill="#202a35"
+              class="halo">x′(4)</text><text x="649" y="245" font-size="15" fill="#202a35"
+              class="halo">x″(4)</text><text x="439" y="293" font-size="15" fill="#202a35"
+              class="halo">x′(5)</text><text x="649" y="293" font-size="15" fill="#202a35"
+              class="halo">x″(5)</text><text x="439" y="341" font-size="15" fill="#202a35"
+              class="halo">x′(6)</text><text x="649" y="341" font-size="15" fill="#202a35"
+              class="halo">x″(6)</text><text x="439" y="389" font-size="15" fill="#202a35"
+              class="halo">x′(7)</text><text x="649" y="389" font-size="15" fill="#202a35" class="halo">x″(7)</text></g>
+          <g class="fragment" data-fragment-index="8"><text x="420" y="82" font-size="15" font-weight="700"
+              fill="#167c78" text-anchor="end" class="halo">W⁰</text><text x="420" y="130" font-size="15"
+              font-weight="700" fill="#167c78" text-anchor="end" class="halo">−W⁰</text><text x="420" y="178"
+              font-size="15" font-weight="700" fill="#167c78" text-anchor="end" class="halo">W⁰</text><text x="420"
+              y="226" font-size="15" font-weight="700" fill="#167c78" text-anchor="end" class="halo">−W⁰</text><text
+              x="420" y="274" font-size="15" font-weight="700" fill="#167c78" text-anchor="end"
+              class="halo">W⁰</text><text x="420" y="322" font-size="15" font-weight="700" fill="#167c78"
+              text-anchor="end" class="halo">−W⁰</text><text x="420" y="370" font-size="15" font-weight="700"
+              fill="#167c78" text-anchor="end" class="halo">W⁰</text><text x="420" y="418" font-size="15"
+              font-weight="700" fill="#167c78" text-anchor="end" class="halo">−W⁰</text></g>
+          <g class="fragment" data-fragment-index="9"><text x="630" y="82" font-size="15" font-weight="700"
+              fill="#2f6fa3" text-anchor="end" class="halo">W⁰</text><text x="630" y="130" font-size="15"
+              font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">W²</text><text x="630" y="178"
+              font-size="15" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">−W⁰</text><text x="630"
+              y="226" font-size="15" font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">−W²</text><text
+              x="630" y="274" font-size="15" font-weight="700" fill="#2f6fa3" text-anchor="end"
+              class="halo">W⁰</text><text x="630" y="322" font-size="15" font-weight="700" fill="#2f6fa3"
+              text-anchor="end" class="halo">W²</text><text x="630" y="370" font-size="15" font-weight="700"
+              fill="#2f6fa3" text-anchor="end" class="halo">−W⁰</text><text x="630" y="418" font-size="15"
+              font-weight="700" fill="#2f6fa3" text-anchor="end" class="halo">−W²</text></g>
+          <g class="fragment" data-fragment-index="10"><text x="840" y="82" font-size="15" font-weight="700"
+              fill="#d45a36" text-anchor="end" class="halo">W⁰</text><text x="840" y="130" font-size="15"
+              font-weight="700" fill="#d45a36" text-anchor="end" class="halo">W¹</text><text x="840" y="178"
+              font-size="15" font-weight="700" fill="#d45a36" text-anchor="end" class="halo">W²</text><text x="840"
+              y="226" font-size="15" font-weight="700" fill="#d45a36" text-anchor="end" class="halo">W³</text><text
+              x="840" y="274" font-size="15" font-weight="700" fill="#d45a36" text-anchor="end"
+              class="halo">−W⁰</text><text x="840" y="322" font-size="15" font-weight="700" fill="#d45a36"
+              text-anchor="end" class="halo">−W¹</text><text x="840" y="370" font-size="15" font-weight="700"
+              fill="#d45a36" text-anchor="end" class="halo">−W²</text><text x="840" y="418" font-size="15"
+              font-weight="700" fill="#d45a36" text-anchor="end" class="halo">−W³</text></g>
+          <g class="fragment" data-fragment-index="11"><text x="810" y="26" font-size="19" font-weight="700"
+              fill="#d45a36">N = 8 → N/2 = 4</text></g>
+        </svg>
+        <div class="fragment " data-fragment-index="11">
+          <div class="ex-strip"><b>\(N/2=4\)</b> factores distintos: \(W^0,W^1,W^2,W^3\). Los otros cuatro se repiten
+            con signo negativo: \(W^{k+N/2}=-W^k\).</div>
+        </div>
+      </section>
+      <!-- 7.2 ETAPA 1 -->
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Cálculo</div>
+        <h2>1.ª etapa: mariposas de 2 puntos</h2>
+        <div class="ex-strip">\(W_8^0=e^{-j0}=1\) · \(x'[a]=x[a]+W_8^0\,x[b]\) · \(x'[b]=x[a]-W_8^0\,x[b]\)</div>
+        <div class="calc-grid">
+          <div class="fragment " data-fragment-index="1">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 1 · \(x[0]\) y \(x[4]\)</div>
+              <div class="l">\(x'[0] = x[0] + W_8^0\,x[4] = -1 + 4 =\) <u>\(3\)</u><br>\(x'[1] = x[0] - W_8^0\,x[4] = -1 - 4 =\) <u>\(-5\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="2">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 2 · \(x[2]\) y \(x[6]\)</div>
+              <div class="l">\(x'[2] = x[2] + W_8^0\,x[6] = 0 + (-3) =\) <u>\(-3\)</u><br>\(x'[3] = x[2] - W_8^0\,x[6] = 0 - (-3) =\) <u>\(3\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="3">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 3 · \(x[1]\) y \(x[5]\)</div>
+              <div class="l">\(x'[4] = x[1] + W_8^0\,x[5] = 2 + 0 =\) <u>\(2\)</u><br>\(x'[5] = x[1] - W_8^0\,x[5] = 2 - 0 =\) <u>\(2\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="4">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 4 · \(x[3]\) y \(x[7]\)</div>
+              <div class="l">\(x'[6] = x[3] + W_8^0\,x[7] = 0 + (-1) =\) <u>\(-1\)</u><br>\(x'[7] = x[3] - W_8^0\,x[7] = 0 - (-1) =\) <u>\(1\)</u></div>
+            </div>
+          </div>
+        </div>
+        <div class="fragment " data-fragment-index="5">
+          <div class="ex-strip"><b>Resultado:</b> \(x'=[\,3,\,-5,\,-3,\,3,\,2,\,2,\,-1,\,1\,]\)</div>
+        </div>
+      </section>
+      <!-- 7.3 ETAPA 2 -->
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Cálculo</div>
+        <h2>2.ª etapa: mariposas de 4 puntos</h2>
+        <div class="fragment " data-fragment-index="1">
+          <div class="ex-strip">$$W_8^2=\left(e^{-j\frac{2\pi}{8}}\right)^2=e^{-j\frac{\pi}{2}}=-j$$</div>
+        </div>
+        <div class="calc-grid">
+          <div class="fragment " data-fragment-index="2">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 1 · \(x'[0]\) y \(x'[2]\)</div>
+              <div class="l">\(x''[0] = x'[0] + W_8^0\,x'[2] = 3 + (-3) =\) <u>\(0\)</u><br>\(x''[2] = x'[0] - W_8^0\,x'[2] = 3 - (-3) =\) <u>\(6\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="3">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 2 · \(x'[1]\) y \(x'[3]\)</div>
+              <div class="l">\(x''[1] = x'[1] + W_8^2\,x'[3] = -5 + (-j)(3) =\) <u>\(-5 - 3j\)</u><br>\(x''[3] = x'[1] - W_8^2\,x'[3] = -5 - (-j)(3) =\) <u>\(-5 + 3j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="4">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 3 · \(x'[4]\) y \(x'[6]\)</div>
+              <div class="l">\(x''[4] = x'[4] + W_8^0\,x'[6] = 2 + (-1) =\) <u>\(1\)</u><br>\(x''[6] = x'[4] - W_8^0\,x'[6] = 2 - (-1) =\) <u>\(3\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="5">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 4 · \(x'[5]\) y \(x'[7]\)</div>
+              <div class="l">\(x''[5] = x'[5] + W_8^2\,x'[7] = 2 + (-j)(1) =\) <u>\(2 - j\)</u><br>\(x''[7] = x'[5] - W_8^2\,x'[7] = 2 - (-j)(1) =\) <u>\(2 + j\)</u></div>
+            </div>
+          </div>
+        </div>
+        <div class="fragment " data-fragment-index="6">
+          <div class="ex-strip"><b>Resultado:</b> \(x''=[\,0,\,-5-3j,\,6,\,-5+3j,\,1,\,2-j,\,3,\,2+j\,]\)</div>
+        </div>
+      </section>
+      <!-- 7.4 ETAPA 3 -->
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Cálculo</div>
+        <h2>3.ª etapa: mariposa de 8 puntos</h2>
+        <div class="fragment " data-fragment-index="1">
+          <div class="ex-strip">
+            \(W_8^1=e^{-j\frac{2\pi}{8}}=\cos\frac{\pi}{4}-j\,\operatorname{sen}\frac{\pi}{4}=\frac{\sqrt2}{2}-j\frac{\sqrt2}{2}\)
+            · \(W_8^2=-j\) · \(W_8^3=-\frac{\sqrt2}{2}-j\frac{\sqrt2}{2}\)</div>
+        </div>
+        <div class="calc-grid calc-grid-1">
+          <div class="fragment " data-fragment-index="2">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 1 · \(x''[0]\) y \(x''[4]\)</div>
+              <div class="l">\(X[0] = x''[0] + W_8^0\,x''[4] = 0 + 1 =\) <u>\(1\)</u><br>\(X[4] = x''[0] - W_8^0\,x''[4] = 0 - 1 =\) <u>\(-1\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="3">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 2 · \(x''[1]\) y \(x''[5]\)</div>
+              <div class="l">\(X[1] = x''[1] + W_8^1\,x''[5] = -5 - 3j + \frac{\sqrt{2}}{2}(1-j)(2 - j)\)<br>\(\phantom{X[1]} = -5 - 3j + (0.707 - 2.121j) =\) <u>\(-4.293 - 5.121j\)</u><br>\(X[5] = x''[1] - W_8^1\,x''[5] = -5 - 3j - (0.707 - 2.121j) =\) <u>\(-5.707 - 0.879j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="4">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 3 · \(x''[2]\) y \(x''[6]\)</div>
+              <div class="l">\(X[2] = x''[2] + W_8^2\,x''[6] = 6 + (-j)(3) = 6 - 3j =\) <u>\(6 - 3j\)</u><br>\(X[6] = x''[2] - W_8^2\,x''[6] = 6 - (-3j) =\) <u>\(6 + 3j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="5">
+            <div class="calc-card">
+              <div class="cap">MARIPOSA 4 · \(x''[3]\) y \(x''[7]\)</div>
+              <div class="l">\(X[3] = x''[3] + W_8^3\,x''[7] = -5 + 3j + \left(-\frac{\sqrt{2}}{2}\right)(1+j)(2 + j)\)<br>\(\phantom{X[3]} = -5 + 3j + (-0.707 - 2.121j) =\) <u>\(-5.707 + 0.879j\)</u><br>\(X[7] = x''[3] - W_8^3\,x''[7] = -5 + 3j - (-0.707 - 2.121j) =\) <u>\(-4.293 + 5.121j\)</u></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- 7.5 RESULTADOS -->
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Resultado final</div>
+        <h2>\(X[k]\): resultados y simetría de complejos conjugados</h2>
+        <table class="res-table">
+          <tbody>
+            <tr>
+              <th>\(k\)</th>
+              <td>\(0\)</td>
+              <td>\(1\)</td>
+              <td>\(2\)</td>
+              <td>\(3\)</td>
+              <td>\(4\)</td>
+              <td>\(5\)</td>
+              <td>\(6\)</td>
+              <td>\(7\)</td>
+            </tr>
+            <tr>
+              <th>\(X[k]\)</th>
+              <td class="re">\(1\)</td>
+              <td>\(-4.29 - 5.12j\)</td>
+              <td>\(6 - 3j\)</td>
+              <td>\(-5.71 + 0.88j\)</td>
+              <td class="re">\(-1\)</td>
+              <td>\(-5.71 - 0.88j\)</td>
+              <td>\(6 + 3j\)</td>
+              <td>\(-4.29 + 5.12j\)</td>
+            </tr>
+            <tr>
+              <th>\(|X[k]|\)</th>
+              <td>\(1.00\)</td>
+              <td>\(6.68\)</td>
+              <td>\(6.71\)</td>
+              <td>\(5.77\)</td>
+              <td>\(1.00\)</td>
+              <td>\(5.77\)</td>
+              <td>\(6.71\)</td>
+              <td>\(6.68\)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="fragment " data-fragment-index="1">
+          <div class="pair-grid">
+            <div class="pair-card">
+              <div class="tag">\(X[1] \leftrightarrow X[7]\)</div>
+              <div class="l">\(X[1] = -4.29 - 5.12j\)<br>\(X[7] = -4.29 + 5.12j\)<br><span class="teal-text">\(X[7] = X^*[1]\)</span></div>
+            </div>
+            <div class="pair-card">
+              <div class="tag">\(X[2] \leftrightarrow X[6]\)</div>
+              <div class="l">\(X[2] = 6 - 3j\)<br>\(X[6] = 6 + 3j\)<br><span class="teal-text">\(X[6] = X^*[2]\)</span></div>
+            </div>
+            <div class="pair-card">
+              <div class="tag">\(X[3] \leftrightarrow X[5]\)</div>
+              <div class="l">\(X[3] = -5.71 + 0.88j\)<br>\(X[5] = -5.71 - 0.88j\)<br><span class="teal-text">\(X[5] = X^*[3]\)</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="fragment " data-fragment-index="2">
+          <div class="two-col two-col-center">
+            <div class="panel"><svg class="ex-svg ex-svg-bars" viewBox="0 0 520 190"
+                xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="130.6" width="40" height="19.4" fill="#167c78" rx="4" /><text x="40" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=0</text><text x="40" y="124.6" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">1.0</text>
+                <rect x="82" y="20.5" width="40" height="129.5" fill="#d45a36" rx="4" /><text x="102" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=1</text><text x="102" y="14.5" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">6.7</text>
+                <rect x="144" y="20.0" width="40" height="130.0" fill="#d45a36" rx="4" /><text x="164" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=2</text><text x="164" y="14.0" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">6.7</text>
+                <rect x="206" y="38.1" width="40" height="111.9" fill="#d45a36" rx="4" /><text x="226" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=3</text><text x="226" y="32.1" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">5.8</text>
+                <rect x="268" y="130.6" width="40" height="19.4" fill="#167c78" rx="4" /><text x="288" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=4</text><text x="288" y="124.6" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">1.0</text>
+                <rect x="330" y="38.1" width="40" height="111.9" fill="#2f6fa3" rx="4" /><text x="350" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=5</text><text x="350" y="32.1" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">5.8</text>
+                <rect x="392" y="20.0" width="40" height="130.0" fill="#2f6fa3" rx="4" /><text x="412" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=6</text><text x="412" y="14.0" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">6.7</text>
+                <rect x="454" y="20.5" width="40" height="129.5" fill="#2f6fa3" rx="4" /><text x="474" y="172"
+                  font-size="13" text-anchor="middle" fill="#202a35">k=7</text><text x="474" y="14.5" font-size="12"
+                  text-anchor="middle" fill="#202a35" font-weight="700">6.7</text>
+              </svg></div>
+            <div>
+              <div class="ex-strip">$$X[N-k]=X^{*}[k]$$</div>
+              <p class="small"><b>\(X[0]\)</b> y <b>\(X[4]\)</b> (\(k = N/2\)) son reales y no tienen pareja. Las mitades
+                \(k=1,2,3\) y \(k=7,6,5\) son espejos conjugados: por eso \(|X[k]|\) es simétrico y, en señales reales,
+                basta calcular \(0\le k\le N/2\).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- 7.6 DFT -->
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Mismo ejercicio con DFT</div>
+        <h2>Definición y factores \(W_8^{kn}\)</h2>
+        <div class="exercise-box">\(x[n] = [\,-1,\, 2,\, 0,\, 0,\, 4,\, 0,\, -3,\, -1\,]\)</div>
+        <div class="fragment " data-fragment-index="1">
+          <div class="ex-strip">$$X[k]=\sum_{n=0}^{7}x[n]\,W_8^{kn},\qquad
+            W_8^{kn}=e^{-j\frac{2\pi}{8}kn}=W_8^{(kn)\bmod 8}$$</div>
+        </div>
+        <div class="fragment " data-fragment-index="2">
+          <div class="mini-h">VALORES DE \(W_8^m\) (\(m = kn \bmod 8\))</div>
+          <div class="w-chips">
+            <div class="w-chip">\(W_8^0 = 1\)</div>
+            <div class="w-chip">\(W_8^1 = \frac{\sqrt{2}}{2} - j\frac{\sqrt{2}}{2} \approx 0.707 - 0.707j\)</div>
+            <div class="w-chip">\(W_8^2 = -j\)</div>
+            <div class="w-chip">\(W_8^3 = -\frac{\sqrt{2}}{2} - j\frac{\sqrt{2}}{2} \approx -0.707 - 0.707j\)</div>
+            <div class="w-chip">\(W_8^4 = -1\)</div>
+            <div class="w-chip">\(W_8^5 = -\frac{\sqrt{2}}{2} + j\frac{\sqrt{2}}{2} \approx -0.707 + 0.707j\)</div>
+            <div class="w-chip">\(W_8^6 = j\)</div>
+            <div class="w-chip">\(W_8^7 = \frac{\sqrt{2}}{2} + j\frac{\sqrt{2}}{2} \approx 0.707 + 0.707j\)</div>
+          </div>
+        </div>
+        <div class="fragment " data-fragment-index="3">
+          <div class="ex-strip"><b>Solo 5 términos por suma:</b> \(x[2]=x[3]=x[5]=0\), así que cada \(X[k]\) usa
+            \(n=0,1,4,6,7\) con valores \(-1,\,2,\,4,\,-3,\,-1\).</div>
+        </div>
+      </section>
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Cálculo con DFT</div>
+        <h2>DFT: \(X[0]\) a \(X[3]\)</h2>
+        <div class="calc-grid calc-grid-1">
+          <div class="fragment " data-fragment-index="1">
+            <div class="calc-card">
+              <div class="cap">\(X[0]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^0 + (4)W_8^0 + (-3)W_8^0 + (-1)W_8^0\)<br>\(= (-1) + (2) + (4) + (-3) + (-1) =\) <u>\(1\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="2">
+            <div class="calc-card">
+              <div class="cap">\(X[1]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^1 + (4)W_8^4 + (-3)W_8^6 + (-1)W_8^7\)<br>\(= (-1) + (1.414 - 1.414j) + (-4) + (-3j) + (-0.707 - 0.707j) =\) <u>\(-4.293 - 5.121j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="3">
+            <div class="calc-card">
+              <div class="cap">\(X[2]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^2 + (4)W_8^0 + (-3)W_8^4 + (-1)W_8^6\)<br>\(= (-1) + (-2j) + (4) + (3) + (-j) =\) <u>\(6 - 3j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="4">
+            <div class="calc-card">
+              <div class="cap">\(X[3]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^3 + (4)W_8^4 + (-3)W_8^2 + (-1)W_8^5\)<br>\(= (-1) + (-1.414 - 1.414j) + (-4) + (3j) + (0.707 - 0.707j) =\) <u>\(-5.707 + 0.879j\)</u></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · Cálculo con DFT</div>
+        <h2>DFT: \(X[4]\) a \(X[7]\)</h2>
+        <div class="calc-grid calc-grid-1">
+          <div class="fragment " data-fragment-index="1">
+            <div class="calc-card">
+              <div class="cap">\(X[4]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^4 + (4)W_8^0 + (-3)W_8^0 + (-1)W_8^4\)<br>\(= (-1) + (-2) + (4) + (-3) + (1) =\) <u>\(-1\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="2">
+            <div class="calc-card">
+              <div class="cap">\(X[5]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^5 + (4)W_8^4 + (-3)W_8^6 + (-1)W_8^3\)<br>\(= (-1) + (-1.414 + 1.414j) + (-4) + (-3j) + (0.707 + 0.707j) =\) <u>\(-5.707 - 0.879j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="3">
+            <div class="calc-card">
+              <div class="cap">\(X[6]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^6 + (4)W_8^0 + (-3)W_8^4 + (-1)W_8^2\)<br>\(= (-1) + (2j) + (4) + (3) + (j) =\) <u>\(6 + 3j\)</u></div>
+            </div>
+          </div>
+          <div class="fragment " data-fragment-index="4">
+            <div class="calc-card">
+              <div class="cap">\(X[7]\)</div>
+              <div class="l">\(= (-1)W_8^0 + (2)W_8^7 + (4)W_8^4 + (-3)W_8^2 + (-1)W_8^1\)<br>\(= (-1) + (1.414 + 1.414j) + (-4) + (3j) + (-0.707 + 0.707j) =\) <u>\(-4.293 + 5.121j\)</u></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="wide-slide">
+        <div class="eyebrow">07 / Resolución · DFT vs FFT</div>
+        <h2>Mismo resultado, distinto costo</h2>
+        <table class="res-table">
+          <tbody>
+            <tr>
+              <th>\(k\)</th>
+              <td>\(0\)</td>
+              <td>\(1\)</td>
+              <td>\(2\)</td>
+              <td>\(3\)</td>
+              <td>\(4\)</td>
+              <td>\(5\)</td>
+              <td>\(6\)</td>
+              <td>\(7\)</td>
+            </tr>
+            <tr>
+              <th>\(X[k]\) por DFT</th>
+              <td>\(1\)</td>
+              <td>\(-4.29 - 5.12j\)</td>
+              <td>\(6 - 3j\)</td>
+              <td>\(-5.71 + 0.88j\)</td>
+              <td>\(-1\)</td>
+              <td>\(-5.71 - 0.88j\)</td>
+              <td>\(6 + 3j\)</td>
+              <td>\(-4.29 + 5.12j\)</td>
+            </tr>
+            <tr>
+              <th>\(X[k]\) por FFT</th>
+              <td class="re">\(1\)</td>
+              <td>\(-4.29 - 5.12j\)</td>
+              <td>\(6 - 3j\)</td>
+              <td>\(-5.71 + 0.88j\)</td>
+              <td class="re">\(-1\)</td>
+              <td>\(-5.71 - 0.88j\)</td>
+              <td>\(6 + 3j\)</td>
+              <td>\(-4.29 + 5.12j\)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="fragment " data-fragment-index="1">
+          <div class="grid2">
+            <div class="panel"><span class="num">DFT DIRECTA</span>
+              <p class="small">\(N^2=64\) multiplicaciones complejas<br>(56 si se omiten las de \(W_8^0\)) y \(N(N-1)=56\)
+                sumas.</p>
+            </div>
+            <div class="panel"><span class="num">FFT RADIX-2</span>
+              <p class="small">\(\frac{N}{2}\log_2N=12\) multiplicaciones complejas<br>y \(N\log_2N=24\) sumas.</p>
+            </div>
+          </div>
+        </div>
+        <div class="fragment " data-fragment-index="2">
+          <div class="ex-strip"><b>Conclusión:</b> la FFT no cambia el resultado; reorganiza la DFT en \(\log_2N\)
+            etapas y reutiliza resultados parciales.</div>
+        </div>
+      </section>
+      </section>
+
+      <!-- 9 COMPLEJIDAD -->
+      <section class="wide-slide">
+        <div class="eyebrow">08 / Eficiencia</div>
+        <h2>Complejidad computacional</h2>
+        <div class="rule"></div>
+        <div class="grid2 cx-grid">
+          <div class="panel fig-panel">
+            <div class="chart-heading"><b>Comparación de las complejidades computacionales de la DFT, la FFT
+                </b></div>
+            <canvas id="complexity" width="800" height="480"></canvas>
+          </div>
+          <div>
+            <div class="panel cx-card"><span class="tiny">TAMAÑO REAL · $N = 2^p$</span>
+              <div class="complex-controls"><label>$p$ <input id="complexP" class="cx-range" type="range" min="3"
+                    max="20" value="10"></label></div><output id="complexN" class="num">N = 1,024</output>
+            </div>
+            <div class="panel cx-card"><span class="tiny">DFT · $N^2$ mult.</span><b id="cDft" class="num cx-val">—</b>
+            </div>
+            <div class="panel cx-card"><span class="tiny">FFT · $\frac{N}{2}\log_2 N$ mult.</span><b id="cFft"
+                class="num cx-val">—</b></div>
+            <div class="panel cx-card"><span class="tiny">VECES MENOS CON LA FFT</span><b id="cRatio"
+                class="num cx-ratio">—</b></div>
+          </div>
+        </div>
+        <p class="tiny">La gráfica muestra órdenes de crecimiento (ilustrativas, no tiempos medidos). La QFT se incluye
+          solo como referencia: requiere hardware cuántico.</p>
+      </section>
+
+      <!-- 10 COMPARACION -->
+      <section>
+        <div class="eyebrow">09 / Comparación</div>
+        <h2>DFT frente a FFT</h2>
+        <div class="rule"></div>
+        <div class="comparison-table-wrap">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>CRITERIO</th>
+                <th>DFT DIRECTA</th>
+                <th>FFT RADIX-2</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Resultado matemático</td>
+                <td>Coeficientes $X[k]$</td>
+                <td>Los mismos coeficientes $X[k]$</td>
+              </tr>
+              <tr>
+                <td>Complejidad</td>
+                <td><b class="direct-text">$O(N^2)$</b></td>
+                <td><b class="fast-text">$O(N\log_2 N)$</b></td>
+              </tr>
+              <tr>
+                <td>Multiplicaciones complejas</td>
+                <td>$N^2$</td>
+                <td>$\frac{N}{2}\log_2 N$</td>
+              </tr>
+              <tr>
+                <td>Restricción de $N$</td>
+                <td>Cualquier $N$</td>
+                <td>$N=2^{p}$ (radix-2)</td>
+              </tr>
+              <tr>
+                <td>Estrategia</td>
+                <td>Evalúa las sumas directamente</td>
+                <td>Divide, calcula subproblemas y combina</td>
+              </tr>
+              <tr>
+                <td>Uso conveniente</td>
+                <td>Definición y casos pequeños</td>
+                <td>Procesamiento digital de señales</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid2 comparison-bottom">
+          <div class="panel"><span class="concept-tag">DFT DIRECTA</span><b>Más sencilla de escribir</b>
+            <p class="small">Útil para entender la definición y validar resultados.</p>
+          </div>
+          <div class="panel"><span class="concept-tag">FFT</span><b>Más eficiente en la práctica</b>
+            <p class="small">Adecuada para bloques grandes y muchas transformadas.</p>
+          </div>
+        </div>
+        <div class="insight-strip"><b>No cambia el resultado</b><span>Con la misma convención y las mismas muestras,
+            ambas entregan los mismos coeficientes, salvo redondeo numérico.</span></div>
+      </section>
+
+      <!-- 11 DEMO DFT vs FFT -->
+      <section class="wide-slide">
+        <div class="eyebrow">09 / Comparación · Demostración</div>
+        <h2>Modifica la señal y compara DFT vs FFT</h2>
+        <div class="rule"></div>
+        <div class="controls bench-controls">
+          <label>Señal <select id="benchWave">
+              <option value="two">Dos tonos</option>
+              <option value="sine">Senoidal</option>
+              <option value="square">Cuadrada</option>
+              <option value="impulse">Impulso</option>
+              <option value="noise">Ruido aleatorio</option>
+            </select></label>
+          <label>$N$ <select id="benchN">
+              <option>64</option>
+              <option>128</option>
+              <option selected>256</option>
+              <option>512</option>
+              <option>1024</option>
+              <option>2048</option>
+            </select></label>
+          <label>$f_s$ <select id="benchFs">
+              <option>2048</option>
+              <option>4096</option>
+              <option>8000</option>
+            </select> Hz</label>
+          <span class="ctrl-group"><label>$f_1$ <input id="benchF1" type="range" min="20" max="450" step="5"
+                value="80"></label><output id="benchF1V">80</output> Hz</span>
+          <span class="ctrl-group"><label>$f_2$ <input id="benchF2" type="range" min="50" max="900" step="5"
+                value="220"></label><output id="benchF2V">220</output> Hz</span>
+          <span class="ctrl-group"><label>$A_1$ <input id="benchA1" type="range" min="0" max="2" step=".1"
+                value="1"></label><output id="benchA1V">1.0</output></span>
+          <span class="ctrl-group"><label>$A_2$ <input id="benchA2" type="range" min="0" max="2" step=".1"
+                value=".6"></label><output id="benchA2V">0.6</output></span>
+          <button type="button" id="runBench">Medir DFT y FFT</button><button type="button" id="clearBench"
+            class="alt">Limpiar tabla</button>
+        </div>
+        <div class="grid2 bench-plots">
+          <div class="panel"><span class="tiny">SEÑAL GENERADA · ARRASTRA LOS PUNTOS</span><canvas id="benchTime"
+              width="560" height="170"></canvas></div>
+          <div class="panel"><span class="tiny">MAGNITUD DEL ESPECTRO</span><canvas id="benchSpectrum" width="560"
+              height="170"></canvas></div>
+        </div>
+        <div class="table-wrap">
+          <table id="benchTable">
+            <thead>
+              <tr>
+                <th>N</th>
+                <th>Fs (Hz)</th>
+                <th>DFT (ms)</th>
+                <th>FFT (ms)</th>
+                <th>DFT/FFT</th>
+                <th>Error máx.</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="note" id="benchInfo"></p>
+        <p class="tiny">Los tiempos dependen del equipo, el navegador y la carga del sistema.</p>
+      </section>
+
+      <!-- 12 APLICACION DTMF -->
+      <section>
+        <div class="eyebrow">10 / Aplicación · Telecomunicaciones</div>
+        <h2>Detector de tonos DTMF</h2>
+        <div class="rule"></div>
+        <p class="small">Cada tecla = una frecuencia baja + una alta. La FFT encuentra las dos (conecta con tu Práctica
+          3).</p>
+        <div class="grid2 dtmf-layout">
+          <div class="panel dtmf-panel"><span class="concept-tag">TECLADO DE PRUEBA</span>
+            <div id="keypad" class="dtmf-keypad"></div>
+            <p class="tiny">Selecciona una tecla para generar y analizar su combinación.</p>
+            <div class="dtmf-frequency-key"><span><i class="low-dot"></i> Grupo bajo: 697, 770, 852, 941
+                Hz</span><span><i class="high-dot"></i> Grupo alto: 1209, 1336, 1477 Hz</span></div>
+          </div>
+          <div class="panel dtmf-analysis"><span class="concept-tag">ESPECTRO CALCULADO POR FFT</span><canvas
+              id="dtmfPlot" width="650" height="260"></canvas>
+            <p id="dtmfInfo" class="note">Selecciona una tecla para comenzar el análisis.</p>
+            <div id="dtmfResult" class="dtmf-result"><span class="dtmf-result-label">TECLA
+                IDENTIFICADA</span><strong>—</strong><span class="tiny">Esperando una señal DTMF.</span></div>
+          </div>
+        </div>
+        <div class="process-flow dtmf-flow">
+          <div><b>1</b><span>Generar</span><small>dos tonos simultáneos</small></div><i>→</i>
+          <div><b>2</b><span>Calcular FFT</span><small>obtener el espectro</small></div><i>→</i>
+          <div><b>3</b><span>Identificar</span><small>un pico por grupo</small></div>
+        </div>
+      </section>
+
+      <!-- 13 APLICACION VOZ EN VIVO -->
+      <section id="mic" class="wide-slide">
+        <div class="eyebrow">11 / Aplicación en tiempo real</div>
+        <h2>Espectro de tu voz en vivo</h2>
+        <div class="rule"></div>
+        <div class="panel mic-grid">
+          <div class="controls"><button type="button" id="micStart">🎤 Iniciar micrófono</button><span class="pill">FFT
+              de 2048 muestras · ventana Hann</span><span class="pill">Eje: 0–4000 Hz</span><span class="small muted"
+              id="micStatus">Esperando permiso del micrófono.</span></div>
+          <span class="tiny">SEÑAL EN EL TIEMPO $x[n]$</span><canvas id="micWave" class="mic-wave" width="1000"
+            height="80"></canvas>
+          <span class="tiny">ESPECTRO $|X[k]|$ EN VIVO · FRECUENCIA (Hz)</span><canvas id="micCanvas" width="1000"
+            height="190"></canvas>
+          <div class="stat3 stat3-3">
+            <div><b id="micPeak">—</b><span>Frecuencia dominante estimada</span></div>
+            <div><b id="micLevel">—</b><span>Nivel RMS de la señal</span></div>
+            <div><b id="micRes">—</b><span>Resolución $\Delta f = F_s/N$</span></div>
+          </div>
+          <p class="tiny">Pronuncia una vocal sostenida, silba o reproduce un tono. Requiere permiso de micrófono y
+            abrir el archivo desde HTTPS o localhost.</p>
+        </div>
+      </section>
+
+      <!-- 14 MAS APLICACIONES -->
+      <section class="wide-slide">
+        <div class="eyebrow">12 / Más aplicaciones</div>
+        <h2>¿Dónde más se utiliza la FFT?</h2>
+        <div class="rule"></div>
+        <div class="application-grid">
+          <div class="panel app-card"><span class="app-index">01</span><b>OFDM en Wi-Fi y redes móviles</b>
+            <p class="small">La IFFT genera las subportadoras al transmitir y la FFT las recupera al recibir.</p>
+          </div>
+          <div class="panel app-card"><span class="app-index">02</span><b>Análisis de audio y voz</b>
+            <p class="small">Reconoce tonos, estudia el contenido espectral y apoya la reducción de ruido.</p>
+          </div>
+          <div class="panel app-card"><span class="app-index">03</span><b>Filtrado y convolución rápida</b>
+            <p class="small">Multiplicar espectros y aplicar la transformada inversa acelera la convolución.</p>
+          </div>
+          <div class="panel app-card"><span class="app-index">04</span><b>Radar y sonar</b>
+            <p class="small">El análisis Doppler estima movimiento y velocidad a partir del corrimiento de frecuencia.
+            </p>
+          </div>
+          <div class="panel app-card"><span class="app-index">05</span><b>Monitorización del espectro</b>
+            <p class="small">Detecta interferencias, portadoras no deseadas y componentes de ruido.</p>
+          </div>
+          <div class="panel app-card"><span class="app-index">06</span><b>Diagnóstico de vibraciones</b>
+            <p class="small">El espectro permite detectar componentes asociadas a fallas mecánicas.</p>
+          </div>
+        </div>
+        <div class="formula application-takeaway">La FFT hace viable analizar señales digitales en tiempo real.</div>
+        <div class="references"><b>Referencias</b><span>Cooley, J. W. y Tukey, J. W. (1965). An algorithm for the
+            machine calculation of complex Fourier series.</span><span>Oppenheim, A. V. y Schafer, R. W. Discrete-Time
+            Signal Processing.</span><span>Proakis, J. G. y Manolakis, D. G. Digital Signal Processing.</span></div>
+      </section>
+
+    </div>
+  </div>
+  <script src="reveal.js-master/reveal.js-master/dist/reveal.js"></script>
+  <script src="reveal.js-master/reveal.js-master/dist/plugin/math.js"></script>
+  <script>
+    'use strict';
+    const $ = id => document.getElementById(id), PI2 = 2 * Math.PI;
+    let mathQueue = Promise.resolve();
+    function typesetElements(els) {
+      if (!window.MathJax || !MathJax.typesetPromise) return;
+      mathQueue = mathQueue
+        .then(() => (MathJax.startup && MathJax.startup.promise ? MathJax.startup.promise : Promise.resolve()))
+        .then(() => { if (MathJax.typesetClear) MathJax.typesetClear(els); return MathJax.typesetPromise(els); })
+        .catch(() => { });
+    }
+    function fmt(z) { const r = Math.abs(z.re) < .0005 ? 0 : z.re, i = Math.abs(z.im) < .0005 ? 0 : z.im; return i === 0 ? r.toFixed(3) : (r.toFixed(3) + (i < 0 ? ' − ' : ' + ') + Math.abs(i).toFixed(3) + 'j') }
+    function fft(re, im) { const n = re.length; if ((n & (n - 1)) !== 0) throw Error('N debe ser potencia de 2'); for (let i = 1, j = 0; i < n; i++) { let bit = n >> 1; for (; j & bit; bit >>= 1)j ^= bit; j ^= bit; if (i < j) { [re[i], re[j]] = [re[j], re[i]];[im[i], im[j]] = [im[j], im[i]] } } for (let len = 2; len <= n; len *= 2) { const ang = -PI2 / len; for (let i = 0; i < n; i += len)for (let j = 0; j < len / 2; j++) { const c = Math.cos(ang * j), s = Math.sin(ang * j), u = i + j, v = u + len / 2, tr = re[v] * c - im[v] * s, ti = re[v] * s + im[v] * c; re[v] = re[u] - tr; im[v] = im[u] - ti; re[u] += tr; im[u] += ti } } }
+    function dft(x) { let re = [], im = [], n = x.length; for (let k = 0; k < n; k++) { let a = 0, b = 0; for (let t = 0; t < n; t++) { let q = -PI2 * k * t / n; a += x[t] * Math.cos(q); b += x[t] * Math.sin(q) } re.push(a); im.push(b) } return { re, im } }
+    function spectrum(x, n = x.length) { const re = new Float64Array(n); re.set(x.length > n ? x.slice(0, n) : x); const im = new Float64Array(n); fft(re, im); return Array.from(re, (v, i) => Math.hypot(v, im[i])) }
+    function drawLine(canvas, values, { min, max, color = '#167c78', bars = false } = {}) { const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height; c.clearRect(0, 0, w, h); c.strokeStyle = '#e3ddd3'; c.lineWidth = 1; for (let j = 1; j < 4; j++) { let y = j * h / 4; c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke() } if (!values.length) return; let lo = min ?? Math.min(...values), hi = max ?? Math.max(...values); if (hi === lo) hi = lo + 1; c.strokeStyle = color; c.fillStyle = color; c.lineWidth = 2; if (bars) { let bw = w / values.length; values.forEach((v, i) => { let y = h - (v - lo) / (hi - lo) * h; c.fillRect(i * bw, y, Math.max(1, bw - 1), h - y) }) } else { c.beginPath(); values.forEach((v, i) => { let x = values.length > 1 ? i / (values.length - 1) * w : w / 2, y = h - (v - lo) / (hi - lo) * h; i ? c.lineTo(x, y) : c.moveTo(x, y) }); c.stroke() } }
+
+    function canvasPointerXY(canvas, event) {
+      const rect = canvas.getBoundingClientRect();
+      return { x: (event.clientX - rect.left) * canvas.width / rect.width, y: (event.clientY - rect.top) * canvas.height / rect.height };
+    }
+    function bindCanvasDrag(canvas) {
+      if (canvas._dragBound) return;
+      canvas._dragBound = true;
+      canvas.setAttribute('data-prevent-swipe', '');
+      let active = -1;
+      canvas.addEventListener('pointerdown', event => {
+        const cfg = canvas._dragConfig; if (!cfg) return;
+        const p = canvasPointerXY(canvas, event);
+        if (p.x < cfg.left || p.x > canvas.width - cfg.right || p.y < cfg.top || p.y > canvas.height - cfg.bottom) return;
+        active = cfg.pick(p.x);
+        if (active < 0) return;
+        canvas.setPointerCapture(event.pointerId);
+        canvas.classList.add('is-dragging');
+        cfg.change(active, cfg.fromY(p.y));
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      canvas.addEventListener('pointermove', event => {
+        if (active < 0) return;
+        const cfg = canvas._dragConfig; if (!cfg) return;
+        const p = canvasPointerXY(canvas, event);
+        cfg.change(active, cfg.fromY(p.y));
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      const stop = () => { active = -1; canvas.classList.remove('is-dragging') };
+      canvas.addEventListener('pointerup', stop);
+      canvas.addEventListener('pointercancel', stop);
+      canvas.addEventListener('lostpointercapture', stop);
+    }
+    function drawEditableBars(canvas, values, { min = -6, max = 6, color = '#137c78', step = 1, onChange = () => { } } = {}) {
+      const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, left = 12, right = 12, top = 8, bottom = 17, pw = w - left - right, ph = h - top - bottom;
+      c.clearRect(0, 0, w, h); c.font = '10px sans-serif'; c.strokeStyle = '#e4ded4'; c.lineWidth = 1;
+      for (let j = 0; j <= 4; j++) { let y = top + j * ph / 4; c.beginPath(); c.moveTo(left, y); c.lineTo(w - right, y); c.stroke() }
+      const y0 = top + (max / (max - min)) * ph; c.strokeStyle = '#9da59e'; c.beginPath(); c.moveTo(left, y0); c.lineTo(w - right, y0); c.stroke();
+      const bw = pw / values.length;
+      values.forEach((v, i) => {
+        const x = left + i * bw + bw * .13, y = top + (max - v) / (max - min) * ph, base = y0;
+        c.fillStyle = color; c.fillRect(x, Math.min(y, base), bw * .74, Math.max(2, Math.abs(base - y)));
+        c.fillStyle = '#52616a'; c.textAlign = 'center'; c.fillText(String(i), left + (i + .5) * bw, h - 3);
+        c.fillStyle = color; c.beginPath(); c.arc(left + (i + .5) * bw, y, 3.4, 0, PI2); c.fill();
+      });
+      canvas._dragConfig = {
+        left, right, top, bottom,
+        pick: x => Math.max(0, Math.min(values.length - 1, Math.floor((x - left) / pw * values.length))),
+        fromY: y => { let v = max - (Math.max(top, Math.min(top + ph, y)) - top) / ph * (max - min); return step ? Math.round(v / step) * step : v },
+        change: (i, v) => { values[i] = Math.max(min, Math.min(max, v)); drawEditableBars(canvas, values, { min, max, color, step, onChange }); onChange(values, i) }
+      };
+      canvas.style.cursor = 'ns-resize'; canvas.style.touchAction = 'none'; bindCanvasDrag(canvas);
+    }
+    function drawEditableLine(canvas, values, { min = -4, max = 4, color = '#137c78', points = 64, onChange = () => { } } = {}) {
+      const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, left = 10, right = 10, top = 12, bottom = 16, pw = w - left - right, ph = h - top - bottom;
+      const count = Math.min(points, values.length), indices = Array.from({ length: count }, (_, j) => count === 1 ? 0 : Math.round(j * (values.length - 1) / (count - 1)));
+      c.clearRect(0, 0, w, h); c.strokeStyle = '#e4ded4'; c.lineWidth = 1;
+      for (let j = 1; j < 4; j++) { let y = top + j * ph / 4; c.beginPath(); c.moveTo(left, y); c.lineTo(w - right, y); c.stroke() }
+      const y0 = top + (max / (max - min)) * ph; c.strokeStyle = '#a8b0aa'; c.beginPath(); c.moveTo(left, y0); c.lineTo(w - right, y0); c.stroke();
+      const xy = indices.map((source, j) => ({ x: left + (count === 1 ? 0 : j / (count - 1) * pw), y: top + (max - values[source]) / (max - min) * ph, source }));
+      c.strokeStyle = color; c.lineWidth = 2.5; c.beginPath(); xy.forEach((p, j) => j ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.stroke();
+      xy.forEach((p, j) => { c.fillStyle = '#fffefa'; c.strokeStyle = color; c.lineWidth = 2; c.beginPath(); c.arc(p.x, p.y, count > 36 ? 3.1 : 4.2, 0, PI2); c.fill(); c.stroke() });
+      canvas._dragConfig = {
+        left, right, top, bottom,
+        pick: x => { let best = 0, dist = Infinity; xy.forEach((p, j) => { let d = Math.abs(p.x - x); if (d < dist) { dist = d; best = j } }); return best },
+        fromY: y => max - (Math.max(top, Math.min(top + ph, y)) - top) / ph * (max - min),
+        change: (j, v) => { values[indices[j]] = Math.max(min, Math.min(max, v)); drawEditableLine(canvas, values, { min, max, color, points, onChange }); onChange(values, indices[j]) }
+      };
+      canvas.style.cursor = 'ns-resize'; canvas.style.touchAction = 'none'; bindCanvasDrag(canvas);
+    }
+
+    let rootMode = 'sym';
+    function roots() {
+      let N = +$('wnN').value, k = Math.min(+$('wnK').value, N - 1);
+      $('wnK').max = N - 1; $('wnKv').textContent = k; $('wnNv').textContent = N;
+      const c = $('roots').getContext('2d'), w = c.canvas.width, h = c.canvas.height, cx = w / 2, cy = h / 2, R = Math.min(w * .34, h * .39);
+      c.clearRect(0, 0, w, h); c.strokeStyle = '#d8d1c5'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(35, cy); c.lineTo(w - 35, cy); c.moveTo(cx, 20); c.lineTo(cx, h - 20); c.stroke();
+      c.strokeStyle = '#bdb5a8'; c.beginPath(); c.arc(cx, cy, R, 0, PI2); c.stroke();
+      const point = i => ({ x: cx + R * Math.cos(-PI2 * i / N), y: cy + R * Math.sin(-PI2 * i / N) });
+      for (let i = 0; i < N; i++) { let p = point(i), sel = i === k, opp = i === (k + N / 2) % N; c.strokeStyle = sel ? '#167c78' : opp ? '#d45a36' : '#c6c0b5'; c.lineWidth = sel || opp ? 3 : 1; c.beginPath(); c.moveTo(cx, cy); c.lineTo(p.x, p.y); c.stroke(); c.fillStyle = sel ? '#167c78' : opp ? '#d45a36' : '#9ba39e'; c.beginPath(); c.arc(p.x, p.y, sel || opp ? 8 : (N > 32 ? 2.8 : 4), 0, PI2); c.fill(); if (N <= 20 || sel || opp || i % (N > 48 ? 8 : 4) === 0) { c.font = N > 32 ? '10px monospace' : '13px monospace'; c.fillStyle = sel ? '#126b66' : opp ? '#b84a2b' : '#65717a'; c.textAlign = 'center'; c.fillText(i, p.x + (p.x >= cx ? 12 : -12), p.y + (p.y >= cy ? 19 : -10)) } }
+      let a = point(k), op = (k + N / 2) % N, b = point(op);
+      c.setLineDash([5, 5]); c.strokeStyle = '#d45a36'; c.lineWidth = 2; c.beginPath();
+      if (rootMode === 'sym') { c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); }
+      else { c.arc(cx, cy, R + 17, 0, PI2, true); c.stroke(); c.fillStyle = '#d45a36'; c.font = 'bold 15px monospace'; c.textAlign = 'center'; c.fillText(`k = ${k}  →  k + ${N}`, cx, cy - R - 27) }
+      c.setLineDash([]);
+      let angle = -360 * k / N, re = Math.cos(PI2 * k / N), im = -Math.sin(PI2 * k / N), sign = im < 0 ? '−' : '+';
+      $('rootAngle').textContent = `${angle.toFixed(0)}°`;
+      $('rootValue').textContent = `${re.toFixed(3)} ${sign} ${Math.abs(im).toFixed(3)}j`;
+      $('rootRelation').textContent = rootMode === 'sym' ? `$W_{${N}}^{${op}} = -W_{${N}}^{${k}}$` : `$W_{${N}}^{${k + N}} = W_{${N}}^{${k}}$`;
+      $('rootsInfo').textContent = rootMode === 'sym'
+        ? `Simetría: $W_{${N}}^{${op}}$ está en el punto diametralmente opuesto a $W_{${N}}^{${k}}$; por eso $W_{${N}}^{${op}} = -W_{${N}}^{${k}}$.`
+        : `Periodicidad: al sumar $N$ al exponente, el ángulo gira $-360^\\circ$ adicionales y vuelve al mismo punto: $W_{${N}}^{${k + N}} = W_{${N}}^{${k}}$.`;
+      typesetElements([$('rootRelation'), $('rootsInfo')]);
+      $('rootSym').classList.toggle('selected', rootMode === 'sym'); $('rootPer').classList.toggle('selected', rootMode === 'per');
+    }
+    $('wnN').oninput = () => { let N = +$('wnN').value; $('wnK').max = N - 1; if (+$('wnK').value > N - 1) $('wnK').value = N - 1; roots() };
+    $('wnK').oninput = roots;
+    $('rootSym').onclick = () => { rootMode = 'sym'; roots() };
+    $('rootPer').onclick = () => { rootMode = 'per'; roots() };
+    roots();
+
+    let benchNoiseSeed = 7, benchEditedSignal = null;
+    function makeBenchSignal() {
+      const N = +$('benchN').value, F = +$('benchFs').value, f1 = +$('benchF1').value, f2 = +$('benchF2').value, a1 = +$('benchA1').value, a2 = +$('benchA2').value, type = $('benchWave').value;
+      $('benchF1V').textContent = f1; $('benchF2V').textContent = f2; $('benchA1V').textContent = a1.toFixed(1); $('benchA2V').textContent = a2.toFixed(1);
+      if (benchEditedSignal && benchEditedSignal.length === N) return benchEditedSignal.slice();
+      benchNoiseSeed = 7;
+      return Array.from({ length: N }, (_, i) => {
+        const t = i / F, one = Math.sin(PI2 * f1 * t), two = Math.sin(PI2 * f2 * t);
+        if (type === 'sine') return a1 * one;
+        if (type === 'two') return a1 * one + a2 * two;
+        if (type === 'square') return a1 * (one >= 0 ? 1 : -1);
+        if (type === 'impulse') return i === Math.floor(N / 4) ? a1 : 0;
+        benchNoiseSeed = (benchNoiseSeed * 1664525 + 1013904223) >>> 0;
+        return a1 * ((benchNoiseSeed / 4294967296) * 2 - 1);
+      });
+    }
+    function renderBenchSpectrum(x) {
+      const N = x.length, re = Float64Array.from(x), im = new Float64Array(N);
+      fft(re, im); const mag = Array.from(re, (v, i) => Math.hypot(v, im[i]) / N);
+      drawLine($('benchSpectrum'), mag.slice(0, Math.floor(N / 2)), { min: 0, max: Math.max(.05, ...mag.slice(0, Math.floor(N / 2))) * 1.12, color: '#d45a36', bars: true });
+    }
+    function updateBenchView() {
+      const x = makeBenchSignal(), N = x.length;
+      drawEditableLine($('benchTime'), x, {
+        min: -4, max: 4, color: '#137c78', points: 72, onChange: values => {
+          benchEditedSignal = values.slice(); renderBenchSpectrum(values);
+          $('benchInfo').textContent = `Señal editada directamente en la gráfica · N=${N} · Fs=${$('benchFs').value} Hz · Δf=${(+$('benchFs').value / N).toFixed(2)} Hz. El espectro corresponde a las muestras modificadas.`;
+        }
+      });
+      renderBenchSpectrum(x);
+      $('benchInfo').textContent = `Señal ${$('benchWave').selectedOptions[0].text.toLowerCase()} · N=${N} muestras · Fs=${$('benchFs').value} Hz · Δf=${(+$('benchFs').value / N).toFixed(2)} Hz. Arrastra cualquier punto de la gráfica para editar una muestra.`;
+    }
+    ['benchWave', 'benchN', 'benchFs', 'benchF1', 'benchF2', 'benchA1', 'benchA2'].forEach(id => $(id).addEventListener('input', () => { benchEditedSignal = null; updateBenchView() }));
+    updateBenchView();
+    $('runBench').onclick = () => {
+      const x = makeBenchSignal(), N = x.length;
+      const Fs = +$('benchFs').value; $('runBench').disabled = true; $('benchInfo').textContent = 'Midiendo ambos algoritmos sobre la misma señal…';
+      setTimeout(() => {
+        try {
+          let t = performance.now(), D = dft(x), td = performance.now() - t;
+          let re = Float64Array.from(x), im = new Float64Array(N); t = performance.now(); fft(re, im); let tf = performance.now() - t, err = 0;
+          for (let i = 0; i < N; i++)err = Math.max(err, Math.hypot(D.re[i] - re[i], D.im[i] - im[i]));
+          $('benchTable').querySelector('tbody').insertAdjacentHTML('beforeend', `<tr><td>${N}</td><td>${Fs}</td><td>${td.toFixed(3)}</td><td>${tf.toFixed(3)}</td><td>${(td / Math.max(tf, .00001)).toFixed(1)}×</td><td>${err.toExponential(2)}</td></tr>`);
+          const wrap = $('benchTable').closest('.table-wrap'); if (wrap) wrap.scrollTop = wrap.scrollHeight;
+          $('benchInfo').textContent = `Medición completada: N=${N}, Fs=${Fs} Hz. Ambos métodos calculan los mismos coeficientes; la diferencia de tiempos puede variar según el equipo y el navegador.`;
+        } finally {
+          $('runBench').disabled = false;
+        }
+      }, 20);
+    };
+    $('clearBench').onclick = () => { $('benchTable').querySelector('tbody').innerHTML = ''; $('benchInfo').textContent = 'Tabla limpiada. Modifica los parámetros y realiza una nueva medición.' };
+
+    let audioCtx; function playTones(freqs, duration = .6) { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); freqs.forEach(f => { let o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.frequency.value = f; g.gain.value = .07; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + duration) }) }
+    const dtmfRows = [697, 770, 852, 941], dtmfCols = [1209, 1336, 1477], dtmfKeys = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['*', '0', '#']];
+    $('keypad').innerHTML = dtmfKeys.flat().map(k => `<button type="button" class="alt dtmf-key" data-key="${k}">${k}</button>`).join('');
+    function drawDtmfSpectrum(canvas, values, Fs) {
+      const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, L = 42, R = 14, T = 16, B = 28, pw = w - L - R, ph = h - T - B;
+      c.clearRect(0, 0, w, h); c.font = '11px sans-serif'; c.strokeStyle = '#e4ded4'; c.fillStyle = '#65717a';
+      for (let y = 0; y <= 4; y++) { let yy = T + y * ph / 4; c.beginPath(); c.moveTo(L, yy); c.lineTo(w - R, yy); c.stroke(); c.textAlign = 'right'; c.fillText((1 - y / 4).toFixed(2), L - 7, yy + 4) }
+      [0, 500, 1000, 1500, 2000].forEach(f => { let x = L + f / 2000 * pw; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.textAlign = 'center'; c.fillText(f, x, h - 8) });
+      const max = Math.max(1e-9, ...values);
+      c.fillStyle = '#167c78'; const binsToDisplay = Math.floor(2000 / (Fs / 2048)) + 1; let bw = Math.max(1, pw / binsToDisplay * .82);
+      values.forEach((v, i) => { let hz = i * Fs / 2048; if (hz > 2000) return; let x = L + hz / 2000 * pw, bar = Math.max(0, v / max) * ph; c.fillRect(x, T + ph - bar, bw, bar) });
+      c.fillStyle = '#65717a'; c.textAlign = 'right'; c.fillText('Magnitud normalizada', w - R, T - 4);
+    }
+    function strongestTone(values, frequencyList, Fs, N) {
+      let best = { frequency: frequencyList[0], magnitude: -1 };
+      for (const f of frequencyList) {
+        const k = Math.round(f * N / Fs);
+        let local = 0;
+        for (let j = Math.max(1, k - 2); j <= Math.min(values.length - 1, k + 2); j++)local = Math.max(local, values[j]);
+        if (local > best.magnitude) best = { frequency: f, magnitude: local };
+      }
+      return best;
+    }
+    function selectDtmfKey(index) {
+      const row = Math.floor(index / 3), col = index % 3, fl = dtmfRows[row], fh = dtmfCols[col], Fs = 8000, N = 2048;
+      const x = Array.from({ length: N }, (_, n) => Math.sin(PI2 * fl * n / Fs) + Math.sin(PI2 * fh * n / Fs));
+      const mag = spectrum(x, N).slice(0, N / 2 + 1);
+      const lowDetected = strongestTone(mag, dtmfRows, Fs, N), highDetected = strongestTone(mag, dtmfCols, Fs, N);
+      const detectedRow = dtmfRows.indexOf(lowDetected.frequency), detectedCol = dtmfCols.indexOf(highDetected.frequency);
+      const detectedKey = dtmfKeys[detectedRow][detectedCol];
+      drawDtmfSpectrum($('dtmfPlot'), mag, Fs);
+      [...$('keypad').children].forEach(b => b.classList.toggle('selected', b.dataset.key === detectedKey));
+      $('dtmfInfo').textContent = `Picos detectados: ${lowDetected.frequency} Hz (grupo bajo) y ${highDetected.frequency} Hz (grupo alto).`;
+      $('dtmfResult').innerHTML = `<span class="dtmf-result-label">TECLA IDENTIFICADA</span><strong>${detectedKey}</strong><span class="tiny">La FFT localiza un pico en cada grupo de frecuencias.</span>`;
+      playTones([fl, fh], .25);
+    }
+    [...$('keypad').children].forEach((b, i) => b.onclick = () => selectDtmfKey(i));
+
+    /* ===== Mariposa (diapositiva 5, ejemplo fijo) ===== */
+    function renderButterfly() {
+      const A = 2, B = 3, deg = 90, th = -deg * Math.PI / 180;
+      const w = { re: Math.cos(th), im: Math.sin(th) }, WB = { re: B * w.re, im: B * w.im }, P = { re: A + WB.re, im: WB.im }, M = { re: A - WB.re, im: -WB.im };
+      const c = $('butterfly').getContext('2d'), wC = c.canvas.width, hC = c.canvas.height; c.clearRect(0, 0, wC, hC);
+      const top = 92, bottom = 300, x0 = 130, x1 = 390, x2 = 610, x3 = 870;
+      function node(x, y, label, sub, color = '#167c78') { c.fillStyle = '#fffdf8'; c.strokeStyle = color; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 31, 0, PI2); c.fill(); c.stroke(); c.fillStyle = '#202a35'; c.font = 'bold 18px monospace'; c.textAlign = 'center'; c.fillText(label, x, y - 2); c.font = '13px sans-serif'; c.fillStyle = '#65717a'; c.fillText(sub, x, y + 49) }
+      function line(x1, y1, x2, y2, color = '#9aa49f', width = 3) { c.strokeStyle = color; c.lineWidth = width; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke() }
+      c.textAlign = 'center'; c.fillStyle = '#65717a'; c.font = '15px sans-serif'; c.fillText('ENTRADAS', x0, 30); c.fillText('PONDERACIÓN', x1, 30); c.fillText('COMBINACIÓN', x2, 30); c.fillText('SALIDAS', x3, 30);
+      node(x0, top, 'A', `A = ${A.toFixed(1)}`); node(x0, bottom, 'B', `B = ${B.toFixed(1)}`, '#d45a36'); node(x1, bottom, 'W·B', fmt(WB), '#d45a36');
+      line(x0 + 32, top, x2 - 35, top); line(x0 + 27, top + 8, x2 - 35, bottom - 8, '#9aa49f', 2); line(x0 + 28, bottom, x1 - 33, bottom, '#d45a36'); line(x1 + 33, bottom, x2 - 35, top, '#d45a36'); line(x1 + 33, bottom, x2 - 35, bottom, '#d45a36');
+      node(x2, top, '+', 'suma'); node(x2, bottom, '−', 'resta', '#d45a36'); line(x2 + 34, top, x3 - 35, top, '#167c78', 4); line(x2 + 34, bottom, x3 - 35, bottom, '#d45a36', 4); node(x3, top, 'A′', fmt(P)); node(x3, bottom, 'B′', fmt(M), '#d45a36');
+      c.fillStyle = '#d45a36'; c.textAlign = 'right'; c.font = 'bold 16px monospace'; c.fillText('W = e', x1 - 4, bottom - 50);
+      c.textAlign = 'left'; c.font = 'bold 12px monospace'; c.fillText(`−j${deg}°`, x1 - 3, bottom - 58);
+      c.textAlign = 'center';
+    }
+    renderButterfly();
+
+    /* ===== Complejidad: figura DFT / FFT / QFT ===== */
+    function drawComplexity() {
+      const cv = $('complexity'), c = cv.getContext('2d'), w = cv.width, h = cv.height, L = 88, R = 30, T = 20, B = 64, pw = w - L - R, ph = h - T - B;
+      c.clearRect(0, 0, w, h); c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+      const X = n => L + (n - 1) / 9 * pw, Y = v => T + ph - (v + 6) / 106 * ph, F = '20px Arial, sans-serif';
+      c.strokeStyle = '#d9d9d9'; c.lineWidth = 1; for (let v = 0; v <= 100; v += 20) { c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(L + pw, Y(v)); c.stroke() }
+      c.strokeStyle = '#222'; c.lineWidth = 1.4; c.strokeRect(L, T, pw, ph); c.fillStyle = '#222'; c.font = F;
+      c.textAlign = 'right'; for (let v = 0; v <= 100; v += 20)c.fillText(v, L - 10, Y(v) + 7);
+      c.textAlign = 'center'; for (let n = 2; n <= 10; n += 2)c.fillText(n, X(n), T + ph + 28);
+      c.font = '24px Arial, sans-serif'; c.fillText('Entrada (N)', L + pw / 2, h - 10); c.save(); c.translate(24, T + ph / 2); c.rotate(-Math.PI / 2); c.fillText('Complejidad', 0, 0); c.restore();
+      const curve = (f, n0, col) => { c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); for (let n = n0; n <= 10.001; n += .05) { const x = X(n), y = Y(f(n)); n === n0 ? c.moveTo(x, y) : c.lineTo(x, y) } c.stroke() };
+      curve(n => (n - 1) ** 2, 1, '#0072BD'); curve(n => (n - 1) * Math.log2(n), 1, '#D95319');
+      c.fillStyle = '#000'; c.font = '22px Arial, sans-serif'; c.textAlign = 'left'; c.fillText('N²', X(7.5), Y(52)); c.fillText('N log₂N', X(8.0), Y(26));
+      // leyenda
+      const lx = L + 14, ly = T + 12, lw = pw * .56, lh = 100; c.fillStyle = 'rgba(255,255,255,.96)'; c.fillRect(lx, ly, lw, lh); c.strokeStyle = '#222'; c.lineWidth = 1; c.strokeRect(lx, ly, lw, lh);
+      [['#0072BD', 'Transformada discreta de Fourier (DFT)'], ['#D95319', 'Transformada rápida de Fourier (FFT)']].forEach(([col, t], i) => { const y = ly + 22 + i * 30; c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); c.moveTo(lx + 12, y); c.lineTo(lx + 48, y); c.stroke(); c.fillStyle = '#000'; c.font = '18px Arial, sans-serif'; c.textAlign = 'left'; c.fillText(t, lx + 58, y + 6) });
+    }
+    function complexity() { const p = +$('complexP').value, N = 2 ** p, d = N * N, f = N / 2 * p; $('complexN').textContent = 'N = ' + N.toLocaleString('es-PE'); $('cDft').textContent = d.toLocaleString('es-PE'); $('cFft').textContent = f.toLocaleString('es-PE'); $('cRatio').textContent = (d / f).toLocaleString('es-PE', { maximumFractionDigits: 0 }) + '×' }
+    $('complexP').oninput = complexity; complexity(); drawComplexity();
+
+    /* ===== Voz en vivo ===== */
+    let micStream = null, micCtx = null, micAn = null, micRaf = 0, micOn = false, micMax = .02;
+    const MN = 2048, micWin = Float64Array.from({ length: MN }, (_, i) => .5 - .5 * Math.cos(PI2 * i / (MN - 1)));
+    function stopMic(keepStatus = false) { micOn = false; cancelAnimationFrame(micRaf); if (micStream) micStream.getTracks().forEach(t => t.stop()); micStream = null; if (micCtx) micCtx.close().catch(() => { }); micCtx = null; micAn = null; $('micStart').textContent = '🎤 Iniciar micrófono'; if (!keepStatus) $('micStatus').textContent = 'Micrófono detenido.' }
+    $('micStart').onclick = async () => {
+      if (micOn) { stopMic(); return }
+      try {
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+        micCtx = new (window.AudioContext || window.webkitAudioContext)(); micAn = micCtx.createAnalyser(); micAn.fftSize = MN; micCtx.createMediaStreamSource(micStream).connect(micAn);
+        micOn = true; micMax = .02; $('micStart').textContent = '⏹ Detener micrófono'; $('micStatus').textContent = 'Escuchando…';
+        const Fs = micCtx.sampleRate, df = Fs / MN, K = Math.min(MN / 2, Math.floor(4000 / df)), buf = new Float32Array(MN); $('micRes').textContent = df.toFixed(1) + ' Hz';
+        const loop = () => {
+          if (!micOn) return; micAn.getFloatTimeDomainData(buf);
+          let e = 0; const re = new Float64Array(MN), im = new Float64Array(MN); for (let i = 0; i < MN; i++) { e += buf[i] * buf[i]; re[i] = buf[i] * micWin[i] }
+          const rms = Math.sqrt(e / MN); fft(re, im); const mag = []; let pk = 2, pv = 0;
+          for (let k = 0; k <= K; k++) { const m = Math.hypot(re[k], im[k]) / (MN / 4); mag.push(m); if (k >= 2 && m > pv) { pv = m; pk = k } }
+          micMax = Math.max(micMax * .985, pv * 1.15, .01);
+          // onda
+          const wc = $('micWave'), wx = wc.getContext('2d'); wx.clearRect(0, 0, wc.width, wc.height); wx.strokeStyle = '#137c78'; wx.lineWidth = 1.6; wx.beginPath(); for (let i = 0; i < MN; i++) { const x = i / (MN - 1) * wc.width, y = wc.height / 2 - buf[i] * wc.height * 1.4; i ? wx.lineTo(x, y) : wx.moveTo(x, y) } wx.stroke();
+          // espectro
+          const cv = $('micCanvas'), c = cv.getContext('2d'), w = cv.width, h = cv.height, L = 50, R = 14, T = 14, B = 34, pw = w - L - R, ph = h - T - B; c.clearRect(0, 0, w, h);
+          c.font = '13px sans-serif'; c.fillStyle = '#687680'; c.strokeStyle = '#e4ded4'; c.lineWidth = 1;
+          for (let f = 0; f <= 4000; f += 500) { const x = L + f / 4000 * pw; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.textAlign = 'center'; c.fillText(f, x, h - 12) }
+          c.textAlign = 'right'; c.fillText('Hz', w - R, T + 12);
+          c.beginPath(); c.moveTo(L, T + ph); mag.forEach((m, k) => c.lineTo(L + k * df / 4000 * pw, T + ph - Math.min(1, m / micMax) * ph)); c.lineTo(L + K * df / 4000 * pw, T + ph); c.closePath(); c.fillStyle = 'rgba(19,124,120,.28)'; c.fill();
+          c.strokeStyle = '#137c78'; c.lineWidth = 2; c.beginPath(); mag.forEach((m, k) => { const x = L + k * df / 4000 * pw, y = T + ph - Math.min(1, m / micMax) * ph; k ? c.lineTo(x, y) : c.moveTo(x, y) }); c.stroke();
+          if (rms > .008 && pk >= 2 && pk < K) {
+            const a = mag[pk - 1], b = mag[pk], g = mag[pk + 1], den = a - 2 * b + g, d = den ? .5 * (a - g) / den : 0, fpk = (pk + Math.max(-.5, Math.min(.5, d))) * df, x = L + fpk / 4000 * pw;
+            c.setLineDash([6, 5]); c.strokeStyle = '#d85d3b'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.setLineDash([]); c.fillStyle = '#d85d3b'; c.font = 'bold 14px "Space Mono",monospace'; c.textAlign = 'left'; c.fillText(Math.round(fpk) + ' Hz', Math.min(x + 6, w - 90), T + 16); $('micPeak').textContent = Math.round(fpk) + ' Hz'
+          }
+          else $('micPeak').textContent = '—';
+          $('micLevel').textContent = rms.toFixed(3);
+          micRaf = requestAnimationFrame(loop)
+        };
+        loop();
+      } catch (err) { stopMic(true); $('micStatus').textContent = 'No se pudo acceder al micrófono. Revisa los permisos y abre el archivo desde HTTPS o localhost.' }
+    };
+
+    document.querySelectorAll('.controls,.stage-bar,.tabs,.dtmf-keypad,canvas').forEach(el => el.setAttribute('data-prevent-swipe', ''));
+    document.querySelector('.reveal .slides').addEventListener('keydown', e => {
+      if (e.target.matches('input,select') && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) e.stopPropagation();
+    });
+    function redrawInteractiveSlides() {
+      roots();
+      renderButterfly();
+      complexity();
+      drawComplexity();
+      updateBenchView();
+    }
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      width: 1120,
+      height: 700,
+      margin: .04,
+      minScale: .2,
+      maxScale: 2.0,
+      transition: 'fade',
+      controls: true,
+      progress: true,
+      center: false,
+      keyboard: true,
+      touch: true,
+      mathjax3: {
+        mathjax: 'vendor/mathjax/tex-svg.js',
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] }
+      },
+      plugins: [RevealMath.MathJax3]
+    }).then(() => {
+      redrawInteractiveSlides();
+      Reveal.layout();
+    });
+    Reveal.on('slidechanged', e => {
+      if (micOn && e.currentSlide.id !== 'mic') stopMic();
+      redrawInteractiveSlides();
+    });
+
+  </script>
+</body>
+
+</html>

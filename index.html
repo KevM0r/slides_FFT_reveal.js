@@ -2366,10 +2366,270 @@
       font: .78em 'Space Mono', monospace;
       margin: .25em 0
     }
+
+    /* ===== Botón y tema modo oscuro ===== */
+    .theme-toggle {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      gap: .42em;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      font: 700 12px 'Space Mono', ui-monospace, monospace;
+      letter-spacing: .04em;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .12);
+      transition: background .18s ease, color .18s ease, border-color .18s ease, transform .15s ease
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+      transform: translateY(-1px)
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 3px solid #d85d3b66;
+      outline-offset: 2px
+    }
+
+    html.dark {
+      --paper: #0f141b;
+      --card: #171e28;
+      --ink: #e8edf3;
+      --muted: #9aa7b5;
+      --accent: #f07b58;
+      --teal: #34c2b9;
+      --line: #2a3442;
+      --soft: #1f2835;
+      --r-background-color: var(--paper);
+      --r-main-color: var(--ink);
+      --r-heading-color: var(--ink);
+      --r-link-color: var(--teal);
+      --r-link-color-hover: var(--accent)
+    }
+
+    html.dark,
+    html.dark body {
+      background: radial-gradient(ellipse at 84% 8%, #1a2433 0, transparent 36%), var(--paper) !important;
+      color: var(--ink)
+    }
+
+    html.dark .reveal {
+      color: var(--ink)
+    }
+
+    html.dark .panel {
+      border-color: var(--line);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .35)
+    }
+
+    html.dark .panel:hover {
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .48)
+    }
+
+    html.dark .formula {
+      background: linear-gradient(110deg, #162427, #221d1b)
+    }
+
+    html.dark .pill {
+      background: #172e2d;
+      color: var(--teal)
+    }
+
+    html.dark .insight-strip,
+    html.dark .ex-strip,
+    html.dark .dtmf-result {
+      background: #142728;
+      border-color: #234747
+    }
+
+    html.dark .insight-strip b,
+    html.dark .ex-strip b {
+      color: #5cd8cf
+    }
+
+    html.dark .reveal th {
+      background: #1f2835;
+      color: var(--ink)
+    }
+
+    html.dark .reveal td {
+      background: var(--card);
+      color: var(--ink)
+    }
+
+    html.dark #benchTable th {
+      background: #1f2835
+    }
+
+    html.dark .bench-controls,
+    html.dark .leak-controls {
+      background: #1b2430
+    }
+
+    html.dark .reveal select {
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line)
+    }
+
+    html.dark .reveal .slides .controls button,
+    html.dark .reveal button {
+      background: var(--teal);
+      color: #081313
+    }
+
+    html.dark .reveal .slides .controls button.alt,
+    html.dark .reveal button.alt {
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line)
+    }
+
+    html.dark .reveal .slides .controls button:hover,
+    html.dark .reveal button:hover {
+      background: #5cd8cf;
+      color: #061010
+    }
+
+    html.dark .reveal .slides .controls button.selected,
+    html.dark .reveal button.selected,
+    html.dark .dtmf-keypad button.selected,
+    html.dark .tabs button.selected {
+      background: var(--teal) !important;
+      color: #081313 !important;
+      border-color: var(--teal) !important
+    }
+
+    html.dark .growth-track {
+      background: #232d3a
+    }
+
+    html.dark .process-flow>div,
+    html.dark .split-sequence,
+    html.dark .closing-point {
+      background: var(--card)
+    }
+
+    html.dark .process-flow>div>b,
+    html.dark .closing-point>span {
+      background: #173030;
+      color: var(--teal)
+    }
+
+    html.dark .sequence-cells i {
+      background: #1d2633
+    }
+
+    html.dark .sequence-cells i:nth-child(odd),
+    html.dark .branch.even {
+      background: #142c2a;
+      border-color: #25524e;
+      color: #7ae2da
+    }
+
+    html.dark .sequence-cells i:nth-child(even),
+    html.dark .branch.odd {
+      background: #2f1d1a;
+      border-color: #5b332b;
+      color: #f7a189
+    }
+
+    html.dark .stat3>div {
+      background: #141b24
+    }
+
+    html.dark .calc-card {
+      box-shadow: 0 5px 14px rgba(0, 0, 0, .3)
+    }
+
+    html.dark .calc-card .l u {
+      background: #173836;
+      color: #7ae2da
+    }
+
+    html.dark .w-chip,
+    html.dark .calc-note,
+    html.dark .stagebox div {
+      background: #1d2633
+    }
+
+    html.dark canvas,
+    html.dark .fig-panel,
+    html.dark .fig-panel canvas,
+    html.dark #exampleInputPlot,
+    html.dark #benchTime,
+    html.dark #leakTimePlot {
+      background: #131a22
+    }
+
+    html.dark .cover-orbit,
+    html.dark .cover-orbit:before {
+      border-color: #2e3b4c
+    }
+
+    html.dark .closing-takeaway {
+      background: #1b2634;
+      color: var(--ink);
+      border: 1px solid var(--line)
+    }
+
+    html.dark .reveal .slide-number {
+      background: rgba(23, 30, 40, .88);
+      border: 1px solid var(--line);
+      color: var(--ink)
+    }
+
+    html.dark .deck-footer {
+      color: var(--muted)
+    }
+
+    html.dark .ex-svg .halo {
+      stroke: #171e28
+    }
+
+    html.dark .ex-svg text[fill="#202a35"] {
+      fill: #e8edf3
+    }
+
+    html.dark .ex-svg text[fill="#167c78"] {
+      fill: #34c2b9
+    }
+
+    html.dark .ex-svg text[fill="#2f6fa3"] {
+      fill: #6bb2eb
+    }
+
+    html.dark .ex-svg line[stroke="#2f6fa3"],
+    html.dark .ex-svg circle[fill="#2f6fa3"],
+    html.dark .ex-svg rect[fill="#2f6fa3"] {
+      stroke: #5ca8e6
+    }
+
+    html.dark .ex-svg circle[fill="#2f6fa3"],
+    html.dark .ex-svg rect[fill="#2f6fa3"] {
+      fill: #5ca8e6
+    }
+
+    html.dark .ex-svg text[fill="#d45a36"] {
+      fill: #f07b58
+    }
+
+    html.dark .ex-svg text[fill="#65717a"] {
+      fill: #9aa7b5
+    }
   </style>
 </head>
 
 <body>
+  <button type="button" id="themeToggle" class="theme-toggle" aria-label="Cambiar a modo oscuro" title="Alternar modo claro / oscuro">🌙 Modo oscuro</button>
   <div class="reveal">
     <div class="slides">
 
@@ -3658,6 +3918,7 @@
   <script>
     'use strict';
     const $ = id => document.getElementById(id), PI2 = 2 * Math.PI;
+    const isDark = () => document.documentElement.classList.contains('dark');
     let mathQueue = Promise.resolve();
     function typesetElements(els) {
       if (!window.MathJax || !MathJax.typesetPromise) return;
@@ -3670,7 +3931,7 @@
     function fft(re, im) { const n = re.length; if ((n & (n - 1)) !== 0) throw Error('N debe ser potencia de 2'); for (let i = 1, j = 0; i < n; i++) { let bit = n >> 1; for (; j & bit; bit >>= 1)j ^= bit; j ^= bit; if (i < j) { [re[i], re[j]] = [re[j], re[i]];[im[i], im[j]] = [im[j], im[i]] } } for (let len = 2; len <= n; len *= 2) { const ang = -PI2 / len; for (let i = 0; i < n; i += len)for (let j = 0; j < len / 2; j++) { const c = Math.cos(ang * j), s = Math.sin(ang * j), u = i + j, v = u + len / 2, tr = re[v] * c - im[v] * s, ti = re[v] * s + im[v] * c; re[v] = re[u] - tr; im[v] = im[u] - ti; re[u] += tr; im[u] += ti } } }
     function dft(x) { let re = [], im = [], n = x.length; for (let k = 0; k < n; k++) { let a = 0, b = 0; for (let t = 0; t < n; t++) { let q = -PI2 * k * t / n; a += x[t] * Math.cos(q); b += x[t] * Math.sin(q) } re.push(a); im.push(b) } return { re, im } }
     function spectrum(x, n = x.length) { const re = new Float64Array(n); re.set(x.length > n ? x.slice(0, n) : x); const im = new Float64Array(n); fft(re, im); return Array.from(re, (v, i) => Math.hypot(v, im[i])) }
-    function drawLine(canvas, values, { min, max, color = '#167c78', bars = false } = {}) { const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height; c.clearRect(0, 0, w, h); c.strokeStyle = '#e3ddd3'; c.lineWidth = 1; for (let j = 1; j < 4; j++) { let y = j * h / 4; c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke() } if (!values.length) return; let lo = min ?? Math.min(...values), hi = max ?? Math.max(...values); if (hi === lo) hi = lo + 1; c.strokeStyle = color; c.fillStyle = color; c.lineWidth = 2; if (bars) { let bw = w / values.length; values.forEach((v, i) => { let y = h - (v - lo) / (hi - lo) * h; c.fillRect(i * bw, y, Math.max(1, bw - 1), h - y) }) } else { c.beginPath(); values.forEach((v, i) => { let x = values.length > 1 ? i / (values.length - 1) * w : w / 2, y = h - (v - lo) / (hi - lo) * h; i ? c.lineTo(x, y) : c.moveTo(x, y) }); c.stroke() } }
+    function drawLine(canvas, values, { min, max, color = '#167c78', bars = false } = {}) { const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, dk = isDark(), col = dk && color === '#d45a36' ? '#f07b58' : dk && color === '#167c78' ? '#34c2b9' : color; c.clearRect(0, 0, w, h); c.strokeStyle = dk ? '#263140' : '#e3ddd3'; c.lineWidth = 1; for (let j = 1; j < 4; j++) { let y = j * h / 4; c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke() } if (!values.length) return; let lo = min ?? Math.min(...values), hi = max ?? Math.max(...values); if (hi === lo) hi = lo + 1; c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 2; if (bars) { let bw = w / values.length; values.forEach((v, i) => { let y = h - (v - lo) / (hi - lo) * h; c.fillRect(i * bw, y, Math.max(1, bw - 1), h - y) }) } else { c.beginPath(); values.forEach((v, i) => { let x = values.length > 1 ? i / (values.length - 1) * w : w / 2, y = h - (v - lo) / (hi - lo) * h; i ? c.lineTo(x, y) : c.moveTo(x, y) }); c.stroke() } }
 
     function canvasPointerXY(canvas, event) {
       const rect = canvas.getBoundingClientRect();
@@ -3727,14 +3988,14 @@
       canvas.style.cursor = 'ns-resize'; canvas.style.touchAction = 'none'; bindCanvasDrag(canvas);
     }
     function drawEditableLine(canvas, values, { min = -4, max = 4, color = '#137c78', points = 64, onChange = () => { } } = {}) {
-      const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, left = 10, right = 10, top = 12, bottom = 16, pw = w - left - right, ph = h - top - bottom;
+      const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, left = 10, right = 10, top = 12, bottom = 16, pw = w - left - right, ph = h - top - bottom, dk = isDark(), col = dk && color === '#137c78' ? '#34c2b9' : color;
       const count = Math.min(points, values.length), indices = Array.from({ length: count }, (_, j) => count === 1 ? 0 : Math.round(j * (values.length - 1) / (count - 1)));
-      c.clearRect(0, 0, w, h); c.strokeStyle = '#e4ded4'; c.lineWidth = 1;
+      c.clearRect(0, 0, w, h); c.strokeStyle = dk ? '#263140' : '#e4ded4'; c.lineWidth = 1;
       for (let j = 1; j < 4; j++) { let y = top + j * ph / 4; c.beginPath(); c.moveTo(left, y); c.lineTo(w - right, y); c.stroke() }
-      const y0 = top + (max / (max - min)) * ph; c.strokeStyle = '#a8b0aa'; c.beginPath(); c.moveTo(left, y0); c.lineTo(w - right, y0); c.stroke();
+      const y0 = top + (max / (max - min)) * ph; c.strokeStyle = dk ? '#4d5d70' : '#a8b0aa'; c.beginPath(); c.moveTo(left, y0); c.lineTo(w - right, y0); c.stroke();
       const xy = indices.map((source, j) => ({ x: left + (count === 1 ? 0 : j / (count - 1) * pw), y: top + (max - values[source]) / (max - min) * ph, source }));
-      c.strokeStyle = color; c.lineWidth = 2.5; c.beginPath(); xy.forEach((p, j) => j ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.stroke();
-      xy.forEach((p, j) => { c.fillStyle = '#fffefa'; c.strokeStyle = color; c.lineWidth = 2; c.beginPath(); c.arc(p.x, p.y, count > 36 ? 3.1 : 4.2, 0, PI2); c.fill(); c.stroke() });
+      c.strokeStyle = col; c.lineWidth = 2.5; c.beginPath(); xy.forEach((p, j) => j ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.stroke();
+      xy.forEach((p, j) => { c.fillStyle = dk ? '#171e28' : '#fffefa'; c.strokeStyle = col; c.lineWidth = 2; c.beginPath(); c.arc(p.x, p.y, count > 36 ? 3.1 : 4.2, 0, PI2); c.fill(); c.stroke() });
       canvas._dragConfig = {
         left, right, top, bottom,
         pick: x => { let best = 0, dist = Infinity; xy.forEach((p, j) => { let d = Math.abs(p.x - x); if (d < dist) { dist = d; best = j } }); return best },
@@ -3748,15 +4009,16 @@
     function roots() {
       let N = +$('wnN').value, k = Math.min(+$('wnK').value, N - 1);
       $('wnK').max = N - 1; $('wnKv').textContent = k; $('wnNv').textContent = N;
-      const c = $('roots').getContext('2d'), w = c.canvas.width, h = c.canvas.height, cx = w / 2, cy = h / 2, R = Math.min(w * .34, h * .39);
-      c.clearRect(0, 0, w, h); c.strokeStyle = '#d8d1c5'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(35, cy); c.lineTo(w - 35, cy); c.moveTo(cx, 20); c.lineTo(cx, h - 20); c.stroke();
-      c.strokeStyle = '#bdb5a8'; c.beginPath(); c.arc(cx, cy, R, 0, PI2); c.stroke();
+      const c = $('roots').getContext('2d'), w = c.canvas.width, h = c.canvas.height, cx = w / 2, cy = h / 2, R = Math.min(w * .34, h * .39), dk = isDark();
+      const cSel = dk ? '#34c2b9' : '#167c78', cOpp = dk ? '#f07b58' : '#d45a36';
+      c.clearRect(0, 0, w, h); c.strokeStyle = dk ? '#334052' : '#d8d1c5'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(35, cy); c.lineTo(w - 35, cy); c.moveTo(cx, 20); c.lineTo(cx, h - 20); c.stroke();
+      c.strokeStyle = dk ? '#4d5d72' : '#bdb5a8'; c.beginPath(); c.arc(cx, cy, R, 0, PI2); c.stroke();
       const point = i => ({ x: cx + R * Math.cos(-PI2 * i / N), y: cy + R * Math.sin(-PI2 * i / N) });
-      for (let i = 0; i < N; i++) { let p = point(i), sel = i === k, opp = i === (k + N / 2) % N; c.strokeStyle = sel ? '#167c78' : opp ? '#d45a36' : '#c6c0b5'; c.lineWidth = sel || opp ? 3 : 1; c.beginPath(); c.moveTo(cx, cy); c.lineTo(p.x, p.y); c.stroke(); c.fillStyle = sel ? '#167c78' : opp ? '#d45a36' : '#9ba39e'; c.beginPath(); c.arc(p.x, p.y, sel || opp ? 8 : (N > 32 ? 2.8 : 4), 0, PI2); c.fill(); if (N <= 20 || sel || opp || i % (N > 48 ? 8 : 4) === 0) { c.font = N > 32 ? '10px monospace' : '13px monospace'; c.fillStyle = sel ? '#126b66' : opp ? '#b84a2b' : '#65717a'; c.textAlign = 'center'; c.fillText(i, p.x + (p.x >= cx ? 12 : -12), p.y + (p.y >= cy ? 19 : -10)) } }
+      for (let i = 0; i < N; i++) { let p = point(i), sel = i === k, opp = i === (k + N / 2) % N; c.strokeStyle = sel ? cSel : opp ? cOpp : (dk ? '#364354' : '#c6c0b5'); c.lineWidth = sel || opp ? 3 : 1; c.beginPath(); c.moveTo(cx, cy); c.lineTo(p.x, p.y); c.stroke(); c.fillStyle = sel ? cSel : opp ? cOpp : (dk ? '#5c6b7e' : '#9ba39e'); c.beginPath(); c.arc(p.x, p.y, sel || opp ? 8 : (N > 32 ? 2.8 : 4), 0, PI2); c.fill(); if (N <= 20 || sel || opp || i % (N > 48 ? 8 : 4) === 0) { c.font = N > 32 ? '10px monospace' : '13px monospace'; c.fillStyle = sel ? (dk ? '#5cd8cf' : '#126b66') : opp ? (dk ? '#f79578' : '#b84a2b') : (dk ? '#9aa7b5' : '#65717a'); c.textAlign = 'center'; c.fillText(i, p.x + (p.x >= cx ? 12 : -12), p.y + (p.y >= cy ? 19 : -10)) } }
       let a = point(k), op = (k + N / 2) % N, b = point(op);
-      c.setLineDash([5, 5]); c.strokeStyle = '#d45a36'; c.lineWidth = 2; c.beginPath();
+      c.setLineDash([5, 5]); c.strokeStyle = cOpp; c.lineWidth = 2; c.beginPath();
       if (rootMode === 'sym') { c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); }
-      else { c.arc(cx, cy, R + 17, 0, PI2, true); c.stroke(); c.fillStyle = '#d45a36'; c.font = 'bold 15px monospace'; c.textAlign = 'center'; c.fillText(`k = ${k}  →  k + ${N}`, cx, cy - R - 27) }
+      else { c.arc(cx, cy, R + 17, 0, PI2, true); c.stroke(); c.fillStyle = cOpp; c.font = 'bold 15px monospace'; c.textAlign = 'center'; c.fillText(`k = ${k}  →  k + ${N}`, cx, cy - R - 27) }
       c.setLineDash([]);
       let angle = -360 * k / N, re = Math.cos(PI2 * k / N), im = -Math.sin(PI2 * k / N), sign = im < 0 ? '−' : '+';
       $('rootAngle').textContent = `${angle.toFixed(0)}°`;
@@ -3829,15 +4091,16 @@
     let audioCtx; function playTones(freqs, duration = .6) { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); freqs.forEach(f => { let o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.frequency.value = f; g.gain.value = .07; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + duration) }) }
     const dtmfRows = [697, 770, 852, 941], dtmfCols = [1209, 1336, 1477], dtmfKeys = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['*', '0', '#']];
     $('keypad').innerHTML = dtmfKeys.flat().map(k => `<button type="button" class="alt dtmf-key" data-key="${k}">${k}</button>`).join('');
+    let lastDtmf = null;
     function drawDtmfSpectrum(canvas, values, Fs) {
-      const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, L = 42, R = 14, T = 16, B = 28, pw = w - L - R, ph = h - T - B;
-      c.clearRect(0, 0, w, h); c.font = '11px sans-serif'; c.strokeStyle = '#e4ded4'; c.fillStyle = '#65717a';
+      const c = canvas.getContext('2d'), w = canvas.width, h = canvas.height, L = 42, R = 14, T = 16, B = 28, pw = w - L - R, ph = h - T - B, dk = isDark();
+      c.clearRect(0, 0, w, h); c.font = '11px sans-serif'; c.strokeStyle = dk ? '#263140' : '#e4ded4'; c.fillStyle = dk ? '#9aa7b5' : '#65717a';
       for (let y = 0; y <= 4; y++) { let yy = T + y * ph / 4; c.beginPath(); c.moveTo(L, yy); c.lineTo(w - R, yy); c.stroke(); c.textAlign = 'right'; c.fillText((1 - y / 4).toFixed(2), L - 7, yy + 4) }
       [0, 500, 1000, 1500, 2000].forEach(f => { let x = L + f / 2000 * pw; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.textAlign = 'center'; c.fillText(f, x, h - 8) });
       const max = Math.max(1e-9, ...values);
-      c.fillStyle = '#167c78'; const binsToDisplay = Math.floor(2000 / (Fs / 2048)) + 1; let bw = Math.max(1, pw / binsToDisplay * .82);
+      c.fillStyle = dk ? '#34c2b9' : '#167c78'; const binsToDisplay = Math.floor(2000 / (Fs / 2048)) + 1; let bw = Math.max(1, pw / binsToDisplay * .82);
       values.forEach((v, i) => { let hz = i * Fs / 2048; if (hz > 2000) return; let x = L + hz / 2000 * pw, bar = Math.max(0, v / max) * ph; c.fillRect(x, T + ph - bar, bw, bar) });
-      c.fillStyle = '#65717a'; c.textAlign = 'right'; c.fillText('Magnitud normalizada', w - R, T - 4);
+      c.fillStyle = dk ? '#9aa7b5' : '#65717a'; c.textAlign = 'right'; c.fillText('Magnitud normalizada', w - R, T - 4);
     }
     function strongestTone(values, frequencyList, Fs, N) {
       let best = { frequency: frequencyList[0], magnitude: -1 };
@@ -3856,6 +4119,7 @@
       const lowDetected = strongestTone(mag, dtmfRows, Fs, N), highDetected = strongestTone(mag, dtmfCols, Fs, N);
       const detectedRow = dtmfRows.indexOf(lowDetected.frequency), detectedCol = dtmfCols.indexOf(highDetected.frequency);
       const detectedKey = dtmfKeys[detectedRow][detectedCol];
+      lastDtmf = { mag, Fs };
       drawDtmfSpectrum($('dtmfPlot'), mag, Fs);
       [...$('keypad').children].forEach(b => b.classList.toggle('selected', b.dataset.key === detectedKey));
       $('dtmfInfo').textContent = `Picos detectados: ${lowDetected.frequency} Hz (grupo bajo) y ${highDetected.frequency} Hz (grupo alto).`;
@@ -3866,17 +4130,18 @@
 
     /* ===== Mariposa (diapositiva 5, ejemplo fijo) ===== */
     function renderButterfly() {
-      const A = 2, B = 3, deg = 90, th = -deg * Math.PI / 180;
+      const A = 2, B = 3, deg = 90, th = -deg * Math.PI / 180, dk = isDark();
+      const cTeal = dk ? '#34c2b9' : '#167c78', cCoral = dk ? '#f07b58' : '#d45a36', cNeutral = dk ? '#5e6c7c' : '#9aa49f';
       const w = { re: Math.cos(th), im: Math.sin(th) }, WB = { re: B * w.re, im: B * w.im }, P = { re: A + WB.re, im: WB.im }, M = { re: A - WB.re, im: -WB.im };
       const c = $('butterfly').getContext('2d'), wC = c.canvas.width, hC = c.canvas.height; c.clearRect(0, 0, wC, hC);
       const top = 92, bottom = 300, x0 = 130, x1 = 390, x2 = 610, x3 = 870;
-      function node(x, y, label, sub, color = '#167c78') { c.fillStyle = '#fffdf8'; c.strokeStyle = color; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 31, 0, PI2); c.fill(); c.stroke(); c.fillStyle = '#202a35'; c.font = 'bold 18px monospace'; c.textAlign = 'center'; c.fillText(label, x, y - 2); c.font = '13px sans-serif'; c.fillStyle = '#65717a'; c.fillText(sub, x, y + 49) }
-      function line(x1, y1, x2, y2, color = '#9aa49f', width = 3) { c.strokeStyle = color; c.lineWidth = width; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke() }
-      c.textAlign = 'center'; c.fillStyle = '#65717a'; c.font = '15px sans-serif'; c.fillText('ENTRADAS', x0, 30); c.fillText('PONDERACIÓN', x1, 30); c.fillText('COMBINACIÓN', x2, 30); c.fillText('SALIDAS', x3, 30);
-      node(x0, top, 'A', `A = ${A.toFixed(1)}`); node(x0, bottom, 'B', `B = ${B.toFixed(1)}`, '#d45a36'); node(x1, bottom, 'W·B', fmt(WB), '#d45a36');
-      line(x0 + 32, top, x2 - 35, top); line(x0 + 27, top + 8, x2 - 35, bottom - 8, '#9aa49f', 2); line(x0 + 28, bottom, x1 - 33, bottom, '#d45a36'); line(x1 + 33, bottom, x2 - 35, top, '#d45a36'); line(x1 + 33, bottom, x2 - 35, bottom, '#d45a36');
-      node(x2, top, '+', 'suma'); node(x2, bottom, '−', 'resta', '#d45a36'); line(x2 + 34, top, x3 - 35, top, '#167c78', 4); line(x2 + 34, bottom, x3 - 35, bottom, '#d45a36', 4); node(x3, top, 'A′', fmt(P)); node(x3, bottom, 'B′', fmt(M), '#d45a36');
-      c.fillStyle = '#d45a36'; c.textAlign = 'right'; c.font = 'bold 16px monospace'; c.fillText('W = e', x1 - 4, bottom - 50);
+      function node(x, y, label, sub, color = cTeal) { c.fillStyle = dk ? '#171e28' : '#fffdf8'; c.strokeStyle = color; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 31, 0, PI2); c.fill(); c.stroke(); c.fillStyle = dk ? '#e8edf3' : '#202a35'; c.font = 'bold 18px monospace'; c.textAlign = 'center'; c.fillText(label, x, y - 2); c.font = '13px sans-serif'; c.fillStyle = dk ? '#9aa7b5' : '#65717a'; c.fillText(sub, x, y + 49) }
+      function line(x1, y1, x2, y2, color = cNeutral, width = 3) { c.strokeStyle = color; c.lineWidth = width; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke() }
+      c.textAlign = 'center'; c.fillStyle = dk ? '#9aa7b5' : '#65717a'; c.font = '15px sans-serif'; c.fillText('ENTRADAS', x0, 30); c.fillText('PONDERACIÓN', x1, 30); c.fillText('COMBINACIÓN', x2, 30); c.fillText('SALIDAS', x3, 30);
+      node(x0, top, 'A', `A = ${A.toFixed(1)}`); node(x0, bottom, 'B', `B = ${B.toFixed(1)}`, cCoral); node(x1, bottom, 'W·B', fmt(WB), cCoral);
+      line(x0 + 32, top, x2 - 35, top); line(x0 + 27, top + 8, x2 - 35, bottom - 8, cNeutral, 2); line(x0 + 28, bottom, x1 - 33, bottom, cCoral); line(x1 + 33, bottom, x2 - 35, top, cCoral); line(x1 + 33, bottom, x2 - 35, bottom, cCoral);
+      node(x2, top, '+', 'suma'); node(x2, bottom, '−', 'resta', cCoral); line(x2 + 34, top, x3 - 35, top, cTeal, 4); line(x2 + 34, bottom, x3 - 35, bottom, cCoral, 4); node(x3, top, 'A′', fmt(P)); node(x3, bottom, 'B′', fmt(M), cCoral);
+      c.fillStyle = cCoral; c.textAlign = 'right'; c.font = 'bold 16px monospace'; c.fillText('W = e', x1 - 4, bottom - 50);
       c.textAlign = 'left'; c.font = 'bold 12px monospace'; c.fillText(`−j${deg}°`, x1 - 3, bottom - 58);
       c.textAlign = 'center';
     }
@@ -3884,20 +4149,21 @@
 
     /* ===== Complejidad: figura DFT / FFT / QFT ===== */
     function drawComplexity() {
-      const cv = $('complexity'), c = cv.getContext('2d'), w = cv.width, h = cv.height, L = 88, R = 30, T = 20, B = 64, pw = w - L - R, ph = h - T - B;
-      c.clearRect(0, 0, w, h); c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+      const cv = $('complexity'), c = cv.getContext('2d'), w = cv.width, h = cv.height, L = 88, R = 30, T = 20, B = 64, pw = w - L - R, ph = h - T - B, dk = isDark();
+      c.clearRect(0, 0, w, h); c.fillStyle = dk ? '#131a22' : '#fff'; c.fillRect(0, 0, w, h);
       const X = n => L + (n - 1) / 9 * pw, Y = v => T + ph - (v + 6) / 106 * ph, F = '20px Arial, sans-serif';
-      c.strokeStyle = '#d9d9d9'; c.lineWidth = 1; for (let v = 0; v <= 100; v += 20) { c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(L + pw, Y(v)); c.stroke() }
-      c.strokeStyle = '#222'; c.lineWidth = 1.4; c.strokeRect(L, T, pw, ph); c.fillStyle = '#222'; c.font = F;
+      c.strokeStyle = dk ? '#283342' : '#d9d9d9'; c.lineWidth = 1; for (let v = 0; v <= 100; v += 20) { c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(L + pw, Y(v)); c.stroke() }
+      c.strokeStyle = dk ? '#6e7f93' : '#222'; c.lineWidth = 1.4; c.strokeRect(L, T, pw, ph); c.fillStyle = dk ? '#e8edf3' : '#222'; c.font = F;
       c.textAlign = 'right'; for (let v = 0; v <= 100; v += 20)c.fillText(v, L - 10, Y(v) + 7);
       c.textAlign = 'center'; for (let n = 2; n <= 10; n += 2)c.fillText(n, X(n), T + ph + 28);
       c.font = '24px Arial, sans-serif'; c.fillText('Entrada (N)', L + pw / 2, h - 10); c.save(); c.translate(24, T + ph / 2); c.rotate(-Math.PI / 2); c.fillText('Complejidad', 0, 0); c.restore();
       const curve = (f, n0, col) => { c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); for (let n = n0; n <= 10.001; n += .05) { const x = X(n), y = Y(f(n)); n === n0 ? c.moveTo(x, y) : c.lineTo(x, y) } c.stroke() };
-      curve(n => (n - 1) ** 2, 1, '#0072BD'); curve(n => (n - 1) * Math.log2(n), 1, '#D95319');
-      c.fillStyle = '#000'; c.font = '22px Arial, sans-serif'; c.textAlign = 'left'; c.fillText('N²', X(7.5), Y(52)); c.fillText('N log₂N', X(8.0), Y(26));
+      const cDftCol = dk ? '#48a8ff' : '#0072BD', cFftCol = dk ? '#f07b58' : '#D95319';
+      curve(n => (n - 1) ** 2, 1, cDftCol); curve(n => (n - 1) * Math.log2(n), 1, cFftCol);
+      c.fillStyle = dk ? '#e8edf3' : '#000'; c.font = '22px Arial, sans-serif'; c.textAlign = 'left'; c.fillText('N²', X(7.5), Y(52)); c.fillText('N log₂N', X(8.0), Y(26));
       // leyenda
-      const lx = L + 14, ly = T + 12, lw = pw * .56, lh = 100; c.fillStyle = 'rgba(255,255,255,.96)'; c.fillRect(lx, ly, lw, lh); c.strokeStyle = '#222'; c.lineWidth = 1; c.strokeRect(lx, ly, lw, lh);
-      [['#0072BD', 'Transformada discreta de Fourier (DFT)'], ['#D95319', 'Transformada rápida de Fourier (FFT)']].forEach(([col, t], i) => { const y = ly + 22 + i * 30; c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); c.moveTo(lx + 12, y); c.lineTo(lx + 48, y); c.stroke(); c.fillStyle = '#000'; c.font = '18px Arial, sans-serif'; c.textAlign = 'left'; c.fillText(t, lx + 58, y + 6) });
+      const lx = L + 14, ly = T + 12, lw = pw * .56, lh = 100; c.fillStyle = dk ? 'rgba(23,30,40,.95)' : 'rgba(255,255,255,.96)'; c.fillRect(lx, ly, lw, lh); c.strokeStyle = dk ? '#4d5d72' : '#222'; c.lineWidth = 1; c.strokeRect(lx, ly, lw, lh);
+      [[cDftCol, 'Transformada discreta de Fourier (DFT)'], [cFftCol, 'Transformada rápida de Fourier (FFT)']].forEach(([col, t], i) => { const y = ly + 22 + i * 30; c.strokeStyle = col; c.lineWidth = 3; c.beginPath(); c.moveTo(lx + 12, y); c.lineTo(lx + 48, y); c.stroke(); c.fillStyle = dk ? '#e8edf3' : '#000'; c.font = '18px Arial, sans-serif'; c.textAlign = 'left'; c.fillText(t, lx + 58, y + 6) });
     }
     function complexity() { const p = +$('complexP').value, N = 2 ** p, d = N * N, f = N / 2 * p; $('complexN').textContent = 'N = ' + N.toLocaleString('es-PE'); $('cDft').textContent = d.toLocaleString('es-PE'); $('cFft').textContent = f.toLocaleString('es-PE'); $('cRatio').textContent = (d / f).toLocaleString('es-PE', { maximumFractionDigits: 0 }) + '×' }
     $('complexP').oninput = complexity; complexity(); drawComplexity();
@@ -3920,17 +4186,18 @@
           for (let k = 0; k <= K; k++) { const m = Math.hypot(re[k], im[k]) / (MN / 4); mag.push(m); if (k >= 2 && m > pv) { pv = m; pk = k } }
           micMax = Math.max(micMax * .985, pv * 1.15, .01);
           // onda
-          const wc = $('micWave'), wx = wc.getContext('2d'); wx.clearRect(0, 0, wc.width, wc.height); wx.strokeStyle = '#137c78'; wx.lineWidth = 1.6; wx.beginPath(); for (let i = 0; i < MN; i++) { const x = i / (MN - 1) * wc.width, y = wc.height / 2 - buf[i] * wc.height * 1.4; i ? wx.lineTo(x, y) : wx.moveTo(x, y) } wx.stroke();
+          const dk = isDark(), cMic = dk ? '#34c2b9' : '#137c78', cPeak = dk ? '#f07b58' : '#d85d3b';
+          const wc = $('micWave'), wx = wc.getContext('2d'); wx.clearRect(0, 0, wc.width, wc.height); wx.strokeStyle = cMic; wx.lineWidth = 1.6; wx.beginPath(); for (let i = 0; i < MN; i++) { const x = i / (MN - 1) * wc.width, y = wc.height / 2 - buf[i] * wc.height * 1.4; i ? wx.lineTo(x, y) : wx.moveTo(x, y) } wx.stroke();
           // espectro
           const cv = $('micCanvas'), c = cv.getContext('2d'), w = cv.width, h = cv.height, L = 50, R = 14, T = 14, B = 34, pw = w - L - R, ph = h - T - B; c.clearRect(0, 0, w, h);
-          c.font = '13px sans-serif'; c.fillStyle = '#687680'; c.strokeStyle = '#e4ded4'; c.lineWidth = 1;
+          c.font = '13px sans-serif'; c.fillStyle = dk ? '#9aa7b5' : '#687680'; c.strokeStyle = dk ? '#263140' : '#e4ded4'; c.lineWidth = 1;
           for (let f = 0; f <= 4000; f += 500) { const x = L + f / 4000 * pw; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.textAlign = 'center'; c.fillText(f, x, h - 12) }
           c.textAlign = 'right'; c.fillText('Hz', w - R, T + 12);
-          c.beginPath(); c.moveTo(L, T + ph); mag.forEach((m, k) => c.lineTo(L + k * df / 4000 * pw, T + ph - Math.min(1, m / micMax) * ph)); c.lineTo(L + K * df / 4000 * pw, T + ph); c.closePath(); c.fillStyle = 'rgba(19,124,120,.28)'; c.fill();
-          c.strokeStyle = '#137c78'; c.lineWidth = 2; c.beginPath(); mag.forEach((m, k) => { const x = L + k * df / 4000 * pw, y = T + ph - Math.min(1, m / micMax) * ph; k ? c.lineTo(x, y) : c.moveTo(x, y) }); c.stroke();
+          c.beginPath(); c.moveTo(L, T + ph); mag.forEach((m, k) => c.lineTo(L + k * df / 4000 * pw, T + ph - Math.min(1, m / micMax) * ph)); c.lineTo(L + K * df / 4000 * pw, T + ph); c.closePath(); c.fillStyle = dk ? 'rgba(52,194,185,.24)' : 'rgba(19,124,120,.28)'; c.fill();
+          c.strokeStyle = cMic; c.lineWidth = 2; c.beginPath(); mag.forEach((m, k) => { const x = L + k * df / 4000 * pw, y = T + ph - Math.min(1, m / micMax) * ph; k ? c.lineTo(x, y) : c.moveTo(x, y) }); c.stroke();
           if (rms > .008 && pk >= 2 && pk < K) {
             const a = mag[pk - 1], b = mag[pk], g = mag[pk + 1], den = a - 2 * b + g, d = den ? .5 * (a - g) / den : 0, fpk = (pk + Math.max(-.5, Math.min(.5, d))) * df, x = L + fpk / 4000 * pw;
-            c.setLineDash([6, 5]); c.strokeStyle = '#d85d3b'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.setLineDash([]); c.fillStyle = '#d85d3b'; c.font = 'bold 14px "Space Mono",monospace'; c.textAlign = 'left'; c.fillText(Math.round(fpk) + ' Hz', Math.min(x + 6, w - 90), T + 16); $('micPeak').textContent = Math.round(fpk) + ' Hz'
+            c.setLineDash([6, 5]); c.strokeStyle = cPeak; c.lineWidth = 2; c.beginPath(); c.moveTo(x, T); c.lineTo(x, T + ph); c.stroke(); c.setLineDash([]); c.fillStyle = cPeak; c.font = 'bold 14px "Space Mono",monospace'; c.textAlign = 'left'; c.fillText(Math.round(fpk) + ' Hz', Math.min(x + 6, w - 90), T + 16); $('micPeak').textContent = Math.round(fpk) + ' Hz'
           }
           else $('micPeak').textContent = '—';
           $('micLevel').textContent = rms.toFixed(3);
@@ -3950,7 +4217,26 @@
       complexity();
       drawComplexity();
       updateBenchView();
+      if (lastDtmf) drawDtmfSpectrum($('dtmfPlot'), lastDtmf.mag, lastDtmf.Fs);
     }
+    function applyTheme(dark) {
+      document.documentElement.classList.toggle('dark', dark);
+      const btn = $('themeToggle');
+      if (btn) {
+        btn.textContent = dark ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        btn.setAttribute('aria-pressed', String(dark));
+        btn.setAttribute('aria-label', dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+      }
+      redrawInteractiveSlides();
+    }
+    try {
+      if (localStorage.getItem('fft-theme') === 'dark') applyTheme(true);
+    } catch { }
+    $('themeToggle').onclick = () => {
+      const next = !isDark();
+      applyTheme(next);
+      try { localStorage.setItem('fft-theme', next ? 'dark' : 'light'); } catch { }
+    };
     Reveal.initialize({
       hash: true,
       slideNumber: 'c/t',

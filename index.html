@@ -1758,7 +1758,8 @@
 
     .reveal .katex,
     .reveal mjx-container {
-      font-size: 1.02em
+      font-size: 1.02em;
+      letter-spacing: 0
     }
 
     .eq-tight {
@@ -3873,8 +3874,7 @@
         <h2>Definición y factores \(W_8^{kn}\)</h2>
         <div class="exercise-box">\(x[n] = [\,-1,\, 2,\, 0,\, 0,\, 4,\, 0,\, -3,\, -1\,]\)</div>
         <div class="fragment " data-fragment-index="1">
-          <div class="ex-strip">$$X[k]=\sum_{n=0}^{7}x[n]\,W_8^{kn},\qquad
-            W_8^{kn}=e^{-j\frac{2\pi}{8}kn}=W_8^{(kn)\bmod 8}$$</div>
+          <div class="ex-strip">$$X[k]=\sum_{n=0}^{7}x[n]\,W_8^{kn},\qquad W_8^{kn}=e^{-j\frac{2\pi}{8}kn}=W_8^{m}\quad (m = kn \bmod 8)$$</div>
         </div>
         <div class="fragment " data-fragment-index="2">
           <div class="mini-h">VALORES DE \(W_8^m\) (\(m = kn \bmod 8\))</div>
